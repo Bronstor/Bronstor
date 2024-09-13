@@ -3,7 +3,7 @@
 Memorias actualizadas
 ¡Genial, Jhonatan! Con esta información, puedo ayudarte a crear un README para tu perfil de GitHub. Aquí tienes un
 
-👋 ¡Hola! Soy Jhonatan Moisés Vill
+👋 ¡Hola! Soy Jhonatan Moisés Villca
 Soy un estudiante de ingeniería apasionado por la programación. Disfruto aprender nuevas tecnologías y trabajar en proyectos interesantes que me desafíen a mejorar mis habilidades
 
 🔍 Acerca de mí
