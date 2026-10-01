@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coffee Corner</title>
+  <meta name="description" content="Coffee Corner – fresh coffee and warm pastries in a cozy neighborhood café.">
+  <style>
+    /* ---------- Design tokens ---------- */
+    :root {
+      --white: #ffffff;
+      --ink: #3b2e26;
+      --muted: #75665b;
+      --cream: #fbf6ef;
+      --sand: #f1e4d3;
+      --line: #eee2d4;
+      --caramel: #c98b5a;
+      --caramel-deep: #9a5c30;
+      --radius: 24px;
+      --shadow: 0 6px 24px rgba(92, 64, 40, 0.08);
+      --shadow-hover: 0 14px 32px rgba(92, 64, 40, 0.14);
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color-scheme: light;
+    }
+
+    /* ---------- Base ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--white);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    img, svg { display: block; max-width: 100%; }
+
+    a { color: var(--caramel-deep); }
+
+    h1, h2, h3 { font-family: var(--serif); line-height: 1.2; margin: 0; }
+
+    :focus-visible {
+      outline: 3px solid var(--caramel);
+      outline-offset: 3px;
+      border-radius: 8px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1080px;
+      margin-inline: auto;
+      padding-inline: 20px;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -60px;
+      background: var(--ink);
+      color: var(--white);
+      padding: 10px 16px;
+      border-radius: 999px;
+      z-index: 20;
+      transition: top .2s;
+    }
+    .skip-link:focus { top: 12px; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    /* ---------- Header ---------- */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      padding-block: 14px;
+    }
+
+    .brand { font-size: 1.5rem; font-weight: 700; }
+
+    .brand a {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--sand);
+      color: var(--caramel-deep);
+    }
+    .brand-mark svg { width: 24px; height: 24px; }
+
+    .nav-list {
+      display: flex;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-list a {
+      display: block;
+      padding: 8px 18px;
+      border-radius: 999px;
+      color: var(--ink);
+      font-weight: 500;
+      text-decoration: none;
+      transition: background-color .2s, color .2s;
+    }
+    .nav-list a:hover { background: var(--sand); color: var(--caramel-deep); }
+
+    /* ---------- Sections ---------- */
+    section[id] { scroll-margin-top: 80px; }
+
+    .section { padding-block: 72px; }
+
+    .section-head {
+      max-width: 560px;
+      margin: 0 auto 44px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 12px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: var(--sand);
+      color: var(--caramel-deep);
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .section-head h2 { font-size: clamp(1.8rem, 4vw, 2.4rem); }
+
+    .section-head p { margin: 12px 0 0; color: var(--muted); }
+
+    /* ---------- Best sellers ---------- */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .card {
+      overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+
+    .card figure { margin: 0; aspect-ratio: 400 / 260; }
+    .card figure svg { width: 100%; height: 100%; }
+
+    .card-body { padding: 22px 24px 28px; }
+
+    .card h3 { font-size: 1.4rem; margin-bottom: 8px; }
+
+    .card p { margin: 0; color: var(--muted); }
+
+    /* ---------- About ---------- */
+    .about-panel {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      align-items: center;
+      gap: 48px;
+      padding: 56px;
+      background: var(--cream);
+      border-radius: 32px;
+    }
+
+    .about-panel h2 { font-size: clamp(1.8rem, 4vw, 2.4rem); margin-bottom: 18px; }
+
+    .about-panel p { margin: 0 0 14px; color: var(--muted); }
+    .about-panel p:last-child { margin-bottom: 0; }
+
+    .quote {
+      margin: 0;
+      padding: 32px 28px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .quote svg { width: 34px; height: 34px; margin: 0 auto 12px; color: var(--caramel); }
+
+    .quote p {
+      margin: 0 0 12px;
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+
+    .quote footer { color: var(--muted); font-size: .9rem; }
+
+    /* ---------- Contact ---------- */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .contact-card {
+      padding: 28px 16px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .icon-circle {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: var(--sand);
+      color: var(--caramel-deep);
+    }
+    .icon-circle svg { width: 24px; height: 24px; }
+
+    .contact-card h3 { font-size: 1.1rem; margin-bottom: 6px; }
+
+    .contact-card p, .contact-card a { margin: 0; color: var(--muted); font-style: normal; font-size: .95rem; }
+    .contact-card a { text-decoration: none; overflow-wrap: anywhere; }
+    .contact-card a[href^="mailto"] { font-size: .88rem; }
+    .contact-card a:hover { color: var(--caramel-deep); text-decoration: underline; }
+
+    /* ---------- Footer ---------- */
+    .site-footer {
+      margin-top: 32px;
+      padding-top: 56px;
+      background: var(--cream);
+      border-radius: 32px 32px 0 0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 40px;
+      padding-bottom: 40px;
+    }
+
+    .footer-brand { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 1.4rem; font-weight: 700; }
+
+    .footer-grid p { margin: 12px 0 0; color: var(--muted); max-width: 320px; }
+
+    .footer-title { margin-bottom: 14px; font-size: 1.05rem; }
+
+    .footer-links { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+    .footer-links a { color: var(--muted); text-decoration: none; }
+    .footer-links a:hover { color: var(--caramel-deep); text-decoration: underline; }
+
+    .social { display: flex; gap: 12px; margin: 0; padding: 0; list-style: none; }
+
+    .social a {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--white);
+      border: 1px solid var(--line);
+      color: var(--caramel-deep);
+      transition: background-color .2s, color .2s, transform .2s;
+    }
+    .social a:hover { background: var(--caramel); color: var(--white); transform: translateY(-2px); }
+    .social svg { width: 20px; height: 20px; }
+
+    .copyright {
+      padding-block: 20px;
+      border-top: 1px solid var(--line);
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 1100px) {
+      .contact-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      .cards {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+        margin-inline: auto;
+      }
+      .about-panel { grid-template-columns: 1fr; gap: 32px; padding: 40px 28px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .footer-grid > :first-child { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 560px) {
+      .section { padding-block: 52px; }
+      .header-inner { justify-content: center; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .about-panel { padding: 32px 20px; border-radius: 24px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition: none !important; }
+      .card:hover, .social a:hover { transform: none; }
+    }
+  </style>
+</head>
+<body id="top">
+
+  <!-- Reusable icons -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-cup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+      <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+      <path d="M6 1v3M10 1v3M14 1v3"/>
+    </symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+    </symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+      <path d="M22 6l-10 7L2 6"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M12 6v6l4 2"/>
+    </symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5"/>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+      <path d="M17.5 6.5h.01"/>
+    </symbol>
+    <symbol id="i-facebook" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    </symbol>
+    <symbol id="i-youtube" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"/>
+      <path d="M9.75 15.02l5.75-3.27-5.75-3.27z"/>
+    </symbol>
+  </svg>
+
+  <a class="skip-link" href="#menu">Skip to content</a>
+
+  <!-- ===== Header ===== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1 class="brand">
+        <a href="#top">
+          <span class="brand-mark"><svg aria-hidden="true"><use href="#i-cup"/></svg></span>
+          Coffee Corner
+        </a>
+      </h1>
+      <nav aria-label="Main">
+        <ul class="nav-list">
+          <li><a href="#menu">Menu</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===== Best sellers ===== -->
+    <section id="menu" class="section" aria-labelledby="menu-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Our favorites</span>
+          <h2 id="menu-title">Best Sellers</h2>
+          <p>The three things our regulars keep coming back for.</p>
+        </div>
+
+        <div class="cards">
+
+          <!-- Café latte -->
+          <article class="card">
+            <figure style="background:#f7ebdd">
+              <svg viewBox="0 0 400 260" role="img" aria-label="Illustration of a café latte with heart-shaped foam art">
+                <ellipse cx="200" cy="224" rx="128" ry="20" fill="#e8d4bd"/>
+                <ellipse cx="200" cy="215" rx="122" ry="19" fill="#fff" stroke="#e4d0ba" stroke-width="3"/>
+                <ellipse cx="200" cy="211" rx="80" ry="10" fill="#f3e7d8"/>
+                <!-- handle -->
+                <path d="M286 120c38-4 44 46 8 58-8 3-16 3-22 2" fill="none" stroke="#e4d0ba" stroke-width="17" stroke-linecap="round"/>
+                <path d="M286 120c38-4 44 46 8 58-8 3-16 3-22 2" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+                <!-- cup -->
+                <path d="M112 102h176v34c0 44-36 76-88 76s-88-32-88-76z" fill="#fff" stroke="#e4d0ba" stroke-width="3"/>
+                <path d="M130 130c2 30 22 56 52 66" fill="none" stroke="#f3e7d8" stroke-width="8" stroke-linecap="round"/>
+                <ellipse cx="200" cy="102" rx="88" ry="22" fill="#fff" stroke="#e4d0ba" stroke-width="3"/>
+                <ellipse cx="200" cy="103" rx="77" ry="17" fill="#b9825a"/>
+                <ellipse cx="200" cy="104" rx="66" ry="13" fill="#f6e6cf"/>
+                <path d="M200 112c-11-5-17-8-17-13 0-3 2-5 5-5 5 0 10 4 12 7 2-3 7-7 12-7 3 0 5 2 5 5 0 5-6 8-17 13z" fill="#b9825a"/>
+                <!-- steam -->
+                <g fill="none" stroke="#d6bfa8" stroke-width="5" stroke-linecap="round" opacity=".85">
+                  <path d="M168 66c-10-10 10-18 0-30"/>
+                  <path d="M200 60c-10-10 10-18 0-32"/>
+                  <path d="M232 66c-10-10 10-18 0-30"/>
+                </g>
+              </svg>
+            </figure>
+            <div class="card-body">
+              <h3>Café Latte</h3>
+              <p>Smooth espresso with velvety steamed milk, finished with a delicate heart of foam. Our all-day comfort classic.</p>
+            </div>
+          </article>
+
+          <!-- Croissant -->
+          <article class="card">
+            <figure style="background:#fcefd2">
+              <svg viewBox="0 0 400 260" role="img" aria-label="Illustration of a golden butter croissant on a plate">
+                <ellipse cx="200" cy="222" rx="150" ry="22" fill="#f0dca8"/>
+                <ellipse cx="200" cy="214" rx="146" ry="22" fill="#fff" stroke="#ecd9a8" stroke-width="3"/>
+                <ellipse cx="200" cy="212" rx="104" ry="13" fill="#fbf3dc"/>
+                <g fill="#e8b06a" stroke="#c98a42" stroke-width="3" stroke-linejoin="round">
+                  <ellipse cx="96" cy="192" rx="22" ry="15" transform="rotate(-62 96 192)"/>
+                  <ellipse cx="304" cy="192" rx="22" ry="15" transform="rotate(62 304 192)"/>
+                  <ellipse cx="116" cy="160" rx="36" ry="27" transform="rotate(-48 116 160)"/>
+                  <ellipse cx="284" cy="160" rx="36" ry="27" transform="rotate(48 284 160)"/>
+                  <ellipse cx="152" cy="128" rx="46" ry="35" transform="rotate(-22 152 128)"/>
+                  <ellipse cx="248" cy="128" rx="46" ry="35" transform="rotate(22 248 128)"/>
+                  <ellipse cx="200" cy="118" rx="54" ry="41"/>
+                </g>
+                <!-- highlights -->
+                <g fill="#f6cf94" opacity=".9">
+                  <ellipse cx="200" cy="105" rx="34" ry="19"/>
+                  <ellipse cx="150" cy="118" rx="26" ry="14" transform="rotate(-22 150 118)"/>
+                  <ellipse cx="250" cy="118" rx="26" ry="14" transform="rotate(22 250 118)"/>
+                  <ellipse cx="112" cy="150" rx="20" ry="10" transform="rotate(-48 112 150)"/>
+                  <ellipse cx="288" cy="150" rx="20" ry="10" transform="rotate(48 288 150)"/>
+                </g>
+                <!-- layer lines -->
+                <g fill="none" stroke="#c98a42" stroke-width="3" stroke-linecap="round">
+                  <path d="M172 82c-6 20-6 50 0 74"/>
+                  <path d="M228 82c6 20 6 50 0 74"/>
+                  <path d="M126 104c-8 16-10 36-4 54"/>
+                  <path d="M274 104c8 16 10 36 4 54"/>
+                </g>
+              </svg>
+            </figure>
+            <div class="card-body">
+              <h3>Croissant</h3>
+              <p>Buttery, golden and flaky on the outside, soft and airy inside. Baked fresh every morning in small batches.</p>
+            </div>
+          </article>
+
+          <!-- Iced coffee -->
+          <article class="card">
+            <figure style="background:#e8f0ea">
+              <svg viewBox="0 0 400 260" role="img" aria-label="Illustration of an iced coffee with ice cubes and a straw">
+                <defs>
+                  <linearGradient id="icedLiquid" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#f6e6d0"/>
+                    <stop offset=".4" stop-color="#d9a97a"/>
+                    <stop offset="1" stop-color="#7d4f33"/>
+                  </linearGradient>
+                  <clipPath id="icedGlass">
+                    <path d="M140 46h120l-13 168q-1 14-15 14h-64q-14 0-15-14z"/>
+                  </clipPath>
+                </defs>
+                <ellipse cx="200" cy="232" rx="88" ry="11" fill="#d3e0d6"/>
+                <!-- liquid -->
+                <g clip-path="url(#icedGlass)">
+                  <rect x="130" y="88" width="140" height="150" fill="url(#icedLiquid)"/>
+                  <path d="M130 88q17-9 35 0t35 0 35 0 35 0v14q-17 9-35 0t-35 0-35 0-35 0z" fill="#fbf1e2" opacity=".9"/>
+                </g>
+                <!-- straw -->
+                <rect x="216" y="8" width="12" height="152" rx="6" fill="#f0b6a6" transform="rotate(12 222 8)"/>
+                <rect x="219" y="14" width="3" height="120" rx="1.5" fill="#fff" opacity=".45" transform="rotate(12 222 8)"/>
+                <!-- ice cubes -->
+                <g fill="#fff" fill-opacity=".55" stroke="#fff" stroke-opacity=".95" stroke-width="3">
+                  <rect x="152" y="78" width="40" height="40" rx="9" transform="rotate(-12 172 98)"/>
+                  <rect x="198" y="68" width="40" height="40" rx="9" transform="rotate(10 218 88)"/>
+                  <rect x="176" y="128" width="38" height="38" rx="9" transform="rotate(18 195 147)"/>
+                  <rect x="215" y="150" width="32" height="32" rx="8" transform="rotate(-10 231 166)"/>
+                </g>
+                <!-- glass -->
+                <path d="M140 46h120l-13 168q-1 14-15 14h-64q-14 0-15-14z" fill="#fff" fill-opacity=".12" stroke="#c9d8cd" stroke-width="3" stroke-linejoin="round"/>
+                <ellipse cx="200" cy="46" rx="60" ry="7" fill="none" stroke="#c9d8cd" stroke-width="3"/>
+                <path d="M153 70l11 128" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="7" stroke-linecap="round"/>
+              </svg>
+            </figure>
+            <div class="card-body">
+              <h3>Iced Coffee</h3>
+              <p>Slow-brewed coffee poured over ice with a splash of cold milk. Cool, refreshing and perfectly balanced.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== About us ===== -->
+    <section id="about" class="section" aria-labelledby="about-title" style="padding-top:24px">
+      <div class="container">
+        <div class="about-panel">
+          <div>
+            <span class="eyebrow">About us</span>
+            <h2 id="about-title">Our Story</h2>
+            <p>Coffee Corner began with a simple idea: a small neighborhood spot where everyone feels welcome and every cup is made with care. What started as a tiny counter and a single espresso machine has grown into a cozy corner of the community.</p>
+            <p>We work with small roasters who source their beans responsibly, and our bakers start before sunrise so the pastries are always warm and fresh. Whether you stop by for a quick coffee or stay the whole afternoon, there is always a seat for you.</p>
+          </div>
+          <blockquote class="quote">
+            <svg aria-hidden="true"><use href="#i-cup"/></svg>
+            <p>Good coffee, warm pastries and a place to slow down.</p>
+            <footer>— The Coffee Corner team</footer>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Contact ===== -->
+    <section id="contact" class="section" aria-labelledby="contact-title">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Say hello</span>
+          <h2 id="contact-title">Contact</h2>
+          <p>Drop by, give us a call or send us a message. We would love to hear from you.</p>
+        </div>
+
+        <div class="contact-grid">
+          <div class="contact-card">
+            <div class="icon-circle"><svg aria-hidden="true"><use href="#i-pin"/></svg></div>
+            <h3>Visit us</h3>
+            <address><p>123 Coffee Street<br>Your City, 00000</p></address>
+          </div>
+          <div class="contact-card">
+            <div class="icon-circle"><svg aria-hidden="true"><use href="#i-phone"/></svg></div>
+            <h3>Call us</h3>
+            <a href="tel:+15550100123">+1 (555) 010-0123</a>
+          </div>
+          <div class="contact-card">
+            <div class="icon-circle"><svg aria-hidden="true"><use href="#i-mail"/></svg></div>
+            <h3>Email</h3>
+            <a href="mailto:hello@coffeecorner.example">hello@coffeecorner.example</a>
+          </div>
+          <div class="contact-card">
+            <div class="icon-circle"><svg aria-hidden="true"><use href="#i-clock"/></svg></div>
+            <h3>Opening hours</h3>
+            <p>Mon–Fri: 7:00 – 19:00<br>Sat–Sun: 8:00 – 17:00</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <span class="brand-mark"><svg aria-hidden="true"><use href="#i-cup"/></svg></span>
+            Coffee Corner
+          </div>
+          <p>Fresh coffee and warm pastries, made with love in the heart of the neighborhood.</p>
+        </div>
+
+        <nav aria-label="Footer">
+          <h2 class="footer-title">Quick links</h2>
+          <ul class="footer-links">
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+
+        <div>
+          <h2 class="footer-title">Follow us</h2>
+          <!-- Replace each "#" with the café's real profile URL -->
+          <ul class="social">
+            <li><a href="#" aria-label="Instagram"><svg aria-hidden="true"><use href="#i-instagram"/></svg></a></li>
+            <li><a href="#" aria-label="Facebook"><svg aria-hidden="true"><use href="#i-facebook"/></svg></a></li>
+            <li><a href="#" aria-label="YouTube"><svg aria-hidden="true"><use href="#i-youtube"/></svg></a></li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="copyright">&copy; 2026 Coffee Corner. All rights reserved.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
