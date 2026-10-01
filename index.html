@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Coffee Corner: cafetería de barrio con café de especialidad y panadería artesanal.">
+  <title>Coffee Corner</title>
+
+  <style>
+    /* ==========================================================
+       1. VARIABLES Y ESTILOS BASE
+       Los colores y el radio de los bordes están aquí arriba:
+       cámbialos en un solo lugar y se actualiza toda la página.
+       ========================================================== */
+    :root {
+      --color-fondo: #ffffff;
+      --color-crema: #fdf6ec;      /* fondo suave de secciones y pie */
+      --color-borde: #efe3d3;
+      --color-texto: #4a3b32;
+      --color-texto-suave: #75655a;
+      --color-acento: #c8895a;
+      --color-acento-oscuro: #8f5a30;  /* para títulos y enlaces (buen contraste) */
+      --radio: 20px;
+      --sombra: 0 6px 18px rgba(74, 59, 50, 0.08);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--color-texto);
+      background: var(--color-fondo);
+    }
+
+    h1, h2, h3 {
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.2;
+      color: var(--color-acento-oscuro);
+    }
+
+    a {
+      color: var(--color-acento-oscuro);
+    }
+
+    a:focus-visible {
+      outline: 3px solid var(--color-acento);
+      outline-offset: 3px;
+      border-radius: 8px;
+    }
+
+    /* Contenedor que centra el contenido y limita su ancho */
+    .contenedor {
+      width: min(1000px, 100% - 2rem);
+      margin-inline: auto;
+    }
+
+    /* ==========================================================
+       2. ENCABEZADO (nombre + menú de navegación)
+       ========================================================== */
+    .encabezado {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--color-fondo);
+      border-bottom: 1px solid var(--color-borde);
+    }
+
+    .encabezado__contenido {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem 1.5rem;
+      padding-block: 1rem;
+    }
+
+    .marca h1 {
+      margin: 0;
+      font-size: 1.75rem;
+    }
+
+    .marca p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--color-texto-suave);
+    }
+
+    .menu-principal ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .menu-principal a {
+      display: block;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      color: var(--color-texto);
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .menu-principal a:hover {
+      background: var(--color-crema);
+      color: var(--color-acento-oscuro);
+    }
+
+    /* ==========================================================
+       3. SECCIONES (estilos compartidos)
+       ========================================================== */
+    .seccion {
+      padding-block: 3.5rem;
+      scroll-margin-top: 5rem;   /* evita que el encabezado tape el título */
+    }
+
+    .seccion__titulo {
+      margin: 0 0 0.5rem;
+      text-align: center;
+      font-size: 2rem;
+    }
+
+    .seccion__intro {
+      max-width: 540px;
+      margin: 0 auto 2.5rem;
+      text-align: center;
+      color: var(--color-texto-suave);
+    }
+
+    /* ==========================================================
+       4. MÁS VENDIDOS (tarjetas)
+       ========================================================== */
+    .tarjetas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .tarjeta {
+      overflow: hidden;
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio);
+      box-shadow: var(--sombra);
+      transition: transform 0.2s;
+    }
+
+    .tarjeta:hover {
+      transform: translateY(-4px);
+    }
+
+    /* Zona de la imagen: cada tarjeta define su color de fondo con --tono */
+    .tarjeta__imagen {
+      margin: 0;
+      padding: 1rem;
+      background: var(--tono, var(--color-crema));
+    }
+
+    .tarjeta__imagen svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .tarjeta__texto {
+      padding: 1.25rem 1.5rem 1.5rem;
+    }
+
+    .tarjeta__texto h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1.35rem;
+    }
+
+    .tarjeta__texto p {
+      margin: 0;
+      color: var(--color-texto-suave);
+    }
+
+    /* ==========================================================
+       5. NUESTRA HISTORIA
+       ========================================================== */
+    .historia {
+      max-width: 760px;
+      margin-inline: auto;
+      padding: 2.5rem;
+      background: var(--color-crema);
+      border-radius: var(--radio);
+    }
+
+    .historia .seccion__titulo {
+      margin-bottom: 1.25rem;
+    }
+
+    .historia p {
+      margin: 0 0 1rem;
+    }
+
+    .historia p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ==========================================================
+       6. CONTACTO
+       ========================================================== */
+    .contacto {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);   /* 2 x 2 en pantallas grandes */
+      gap: 1rem;
+      font-style: normal;   /* <address> viene en cursiva por defecto */
+    }
+
+    .contacto__dato {
+      margin: 0;            /* quita el margen que trae <dl> por defecto */
+      padding: 1.25rem 1.5rem;
+      border: 1px solid var(--color-borde);
+      border-radius: var(--radio);
+      overflow-wrap: anywhere;   /* evita que un correo largo se salga de la caja */
+    }
+
+    .contacto__dato dt {
+      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-acento-oscuro);
+    }
+
+    .contacto__dato dd {
+      margin: 0;
+    }
+
+    /* ==========================================================
+       7. PIE DE PÁGINA
+       ========================================================== */
+    .pie {
+      margin-top: 1.5rem;
+      padding-block: 2.5rem 1.5rem;
+      background: var(--color-crema);
+      border-top: 1px solid var(--color-borde);
+    }
+
+    .pie__enlaces {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1.5rem 3rem;
+    }
+
+    .pie h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    .pie ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    /* Las redes sociales se muestran como "píldoras" redondeadas */
+    .pie__redes a {
+      display: inline-block;
+      padding: 0.35rem 1rem;
+      background: var(--color-fondo);
+      border: 1px solid var(--color-borde);
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .pie__redes a:hover {
+      background: var(--color-borde);
+    }
+
+    .pie__derechos {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-borde);
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--color-texto-suave);
+    }
+
+    /* ==========================================================
+       8. AJUSTES PARA PANTALLAS PEQUEÑAS Y ACCESIBILIDAD
+       ========================================================== */
+    @media (max-width: 600px) {
+      .encabezado__contenido {
+        justify-content: center;
+        text-align: center;
+      }
+
+      .seccion {
+        padding-block: 2.5rem;
+      }
+
+      .historia {
+        padding: 1.5rem;
+      }
+
+      .contacto {
+        grid-template-columns: 1fr;   /* una columna en móvil */
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .tarjeta {
+        transition: none;
+      }
+
+      .tarjeta:hover {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body id="inicio">
+
+  <!-- ================= ENCABEZADO ================= -->
+  <header class="encabezado">
+    <div class="contenedor encabezado__contenido">
+
+      <div class="marca">
+        <h1>Coffee Corner</h1>
+        <p>Café de especialidad y panadería artesanal</p>
+      </div>
+
+      <nav class="menu-principal" aria-label="Menú principal">
+        <ul>
+          <li><a href="#menu">Menu</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- ================= CONTENIDO PRINCIPAL ================= -->
+  <main>
+
+    <!-- ---------- Más vendidos ---------- -->
+    <section id="menu" class="seccion contenedor" aria-labelledby="titulo-menu">
+      <h2 id="titulo-menu" class="seccion__titulo">Nuestros más vendidos</h2>
+      <p class="seccion__intro">
+        Los favoritos de nuestros clientes, preparados cada día con ingredientes frescos.
+      </p>
+
+      <div class="tarjetas">
+
+        <!-- Tarjeta 1: Café latte -->
+        <article class="tarjeta">
+          <figure class="tarjeta__imagen" style="--tono: #fbeedd;">
+            <svg viewBox="0 0 240 180" role="img" aria-label="Taza de café latte con un corazón de espuma, vista desde arriba">
+              <!-- Platillo -->
+              <circle cx="120" cy="90" r="72" fill="#ffffff" stroke="#eadccb" stroke-width="2"/>
+              <circle cx="120" cy="90" r="58" fill="#f7f0e6"/>
+              <!-- Asa de la taza -->
+              <ellipse cx="170" cy="90" rx="12" ry="11" fill="none" stroke="#eadccb" stroke-width="10"/>
+              <ellipse cx="170" cy="90" rx="12" ry="11" fill="none" stroke="#ffffff" stroke-width="6"/>
+              <!-- Taza y café -->
+              <circle cx="120" cy="90" r="46" fill="#ffffff" stroke="#eadccb" stroke-width="2"/>
+              <circle cx="120" cy="90" r="38" fill="#b9814f"/>
+              <circle cx="120" cy="90" r="32" fill="#d3a574"/>
+              <!-- Corazón de espuma (latte art) -->
+              <path d="M120 108 C98 93 100 74 113 74 C117 74 120 77 120 81 C120 77 123 74 127 74 C140 74 142 93 120 108 Z" fill="#fdf4e6"/>
+            </svg>
+          </figure>
+          <div class="tarjeta__texto">
+            <h3>Café Latte</h3>
+            <p>Espresso suave con leche vaporizada y una capa cremosa de espuma. Cálido, equilibrado y perfecto para cualquier momento del día.</p>
+          </div>
+        </article>
+
+        <!-- Tarjeta 2: Croissant -->
+        <article class="tarjeta">
+          <figure class="tarjeta__imagen" style="--tono: #fff3d8;">
+            <svg viewBox="0 0 240 180" role="img" aria-label="Croissant dorado">
+              <!-- Sombra -->
+              <ellipse cx="120" cy="152" rx="72" ry="8" fill="#4a3b32" opacity="0.08"/>
+              <!-- Cada tramo del croissant es una elipse girada siguiendo un arco -->
+              <g stroke="#c27d2c" stroke-width="2.5">
+                <!-- Puntas -->
+                <g transform="translate(55.3 129.3) rotate(-85)"><ellipse rx="9" ry="14" fill="#e9b160"/></g>
+                <g transform="translate(184.7 129.3) rotate(85)"><ellipse rx="9" ry="14" fill="#e9b160"/></g>
+                <!-- Tramos exteriores -->
+                <g transform="translate(61.1 107.5) rotate(-65)"><ellipse rx="16" ry="24" fill="#e6a850"/></g>
+                <g transform="translate(178.9 107.5) rotate(65)"><ellipse rx="16" ry="24" fill="#e6a850"/></g>
+                <!-- Tramos intermedios -->
+                <g transform="translate(82.7 81.8) rotate(-35)">
+                  <ellipse rx="22" ry="31" fill="#eab35c"/>
+                  <ellipse cx="-5" cy="-8" rx="6" ry="12" fill="#f8d995" stroke="none" opacity="0.8"/>
+                </g>
+                <g transform="translate(157.3 81.8) rotate(35)">
+                  <ellipse rx="22" ry="31" fill="#eab35c"/>
+                  <ellipse cx="5" cy="-8" rx="6" ry="12" fill="#f8d995" stroke="none" opacity="0.8"/>
+                </g>
+                <!-- Tramo central (el más grande, va encima) -->
+                <ellipse cx="120" cy="70" rx="27" ry="35" fill="#efbd68"/>
+                <ellipse cx="112" cy="57" rx="8" ry="15" fill="#f8d995" stroke="none" opacity="0.8"/>
+              </g>
+            </svg>
+          </figure>
+          <div class="tarjeta__texto">
+            <h3>Croissant</h3>
+            <p>Hojaldre de mantequilla horneado cada mañana: dorado y crujiente por fuera, suave y esponjoso por dentro.</p>
+          </div>
+        </article>
+
+        <!-- Tarjeta 3: Iced coffee -->
+        <article class="tarjeta">
+          <figure class="tarjeta__imagen" style="--tono: #e8f3ee;">
+            <svg viewBox="0 0 240 180" role="img" aria-label="Vaso de iced coffee con hielo y pajilla">
+              <defs>
+                <!-- Forma interior del vaso: recorta el café para que no se salga -->
+                <clipPath id="forma-vaso">
+                  <path d="M88 30 L152 30 L143 155 Q142.5 162 135 162 L105 162 Q97.5 162 97 155 Z"/>
+                </clipPath>
+                <!-- Degradado de leche (arriba) a café (abajo) -->
+                <linearGradient id="degradado-cafe" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#f6e8d5"/>
+                  <stop offset="0.35" stop-color="#d9b48a"/>
+                  <stop offset="0.7" stop-color="#9a6741"/>
+                  <stop offset="1" stop-color="#7a4d30"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Sombra -->
+              <ellipse cx="120" cy="167" rx="40" ry="5" fill="#4a3b32" opacity="0.08"/>
+              <!-- Vidrio vacío -->
+              <path d="M88 30 L152 30 L143 155 Q142.5 162 135 162 L105 162 Q97.5 162 97 155 Z" fill="#ffffff" fill-opacity="0.5"/>
+              <!-- Café con leche -->
+              <g clip-path="url(#forma-vaso)">
+                <rect x="80" y="52" width="80" height="115" fill="url(#degradado-cafe)"/>
+              </g>
+              <!-- Cubos de hielo -->
+              <g fill="#ffffff" fill-opacity="0.55" stroke="#ffffff" stroke-opacity="0.9" stroke-width="1.5">
+                <rect x="94" y="42" width="24" height="24" rx="5" transform="rotate(-12 106 54)"/>
+                <rect x="118" y="46" width="24" height="24" rx="5" transform="rotate(10 130 58)"/>
+                <rect x="101" y="72" width="24" height="24" rx="5" transform="rotate(6 113 84)"/>
+              </g>
+              <!-- Pajilla -->
+              <line x1="141" y1="12" x2="122" y2="128" stroke="#f4a3a3" stroke-width="7" stroke-linecap="round"/>
+              <!-- Contorno y brillo del vaso -->
+              <path d="M88 30 L152 30 L143 155 Q142.5 162 135 162 L105 162 Q97.5 162 97 155 Z" fill="none" stroke="#c9d6dc" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M97 42 L102 148" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+            </svg>
+          </figure>
+          <div class="tarjeta__texto">
+            <h3>Iced Coffee</h3>
+            <p>Café frío con hielo y un toque de leche. La opción más refrescante para los días de calor.</p>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ---------- Nuestra historia ---------- -->
+    <section id="about" class="seccion contenedor" aria-labelledby="titulo-historia">
+      <div class="historia">
+        <h2 id="titulo-historia" class="seccion__titulo">Nuestra historia</h2>
+        <p>
+          Coffee Corner nació en 2015 como un pequeño rincón con una máquina de espresso,
+          cuatro mesas y una idea sencilla: servir buen café en un lugar donde todos se
+          sientan como en casa.
+        </p>
+        <p>
+          Desde entonces trabajamos con productores locales, tostamos en pequeños lotes y
+          horneamos nuestro pan cada mañana. Hoy seguimos siendo la misma cafetería de barrio,
+          ahora con más amigos que clientes.
+        </p>
+      </div>
+    </section>
+
+    <!-- ---------- Contacto ---------- -->
+    <section id="contact" class="seccion contenedor" aria-labelledby="titulo-contacto">
+      <h2 id="titulo-contacto" class="seccion__titulo">Contacto</h2>
+      <p class="seccion__intro">
+        Te esperamos con una taza caliente. Visítanos o escríbenos.
+      </p>
+
+      <address class="contacto">
+        <dl class="contacto__dato">
+          <dt>Dirección</dt>
+          <dd>Calle del Café 123, Centro</dd>
+        </dl>
+        <dl class="contacto__dato">
+          <dt>Teléfono</dt>
+          <dd><a href="tel:+00000000000">+00 000 000 000</a></dd>
+        </dl>
+        <dl class="contacto__dato">
+          <dt>Correo</dt>
+          <dd><a href="mailto:hola@coffeecorner.example">hola@coffeecorner.example</a></dd>
+        </dl>
+        <dl class="contacto__dato">
+          <dt>Horario</dt>
+          <dd>Lunes a viernes: 7:00 – 20:00<br>Sábado y domingo: 8:00 – 21:00</dd>
+        </dl>
+      </address>
+    </section>
+
+  </main>
+
+  <!-- ================= PIE DE PÁGINA ================= -->
+  <footer class="pie">
+    <div class="contenedor">
+
+      <div class="pie__enlaces">
+        <nav aria-label="Enlaces del sitio">
+          <h2>Enlaces</h2>
+          <ul>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#inicio">Volver arriba</a></li>
+          </ul>
+        </nav>
+
+        <nav class="pie__redes" aria-label="Redes sociales">
+          <h2>Síguenos</h2>
+          <ul>
+            <li><a href="#">Instagram</a></li>
+            <li><a href="#">Facebook</a></li>
+            <li><a href="#">TikTok</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <p class="pie__derechos">
+        <small>&copy; 2026 Coffee Corner. Todos los derechos reservados.</small>
+      </p>
+
+    </div>
+  </footer>
+
+</body>
+</html>
