@@ -8,6 +8,7 @@ de Kaggle (Departamento de Transporte de EE. UU.).
 
 - [`docs/Primera_Presentacion_DW_Vuelos.pdf`](docs/Primera_Presentacion_DW_Vuelos.pdf): entrega en PDF, en Arial 12, con los diagramas de los modelos conceptual (Figura 1), lógico (Figura 2) y físico (Figura 3). Los scripts SQL se entregan aparte, en `sql/`.
 - [`docs/Primera_Presentacion_DW_Vuelos.docx`](docs/Primera_Presentacion_DW_Vuelos.docx): el mismo documento en Word, para completar el encabezado y exportar a PDF.
+- [`docs/Guia_Exposicion_DW_Vuelos.pdf`](docs/Guia_Exposicion_DW_Vuelos.pdf): guía para exponer el documento (qué decir en cada punto y posibles preguntas).
 
 El documento sigue los puntos 1 a 5 de la consigna: tema y dataset, objetivos,
 modelo conceptual (tres DataMarts, selección y granularidad), modelo lógico (tablas,
@@ -49,8 +50,10 @@ proyecto-dw-vuelos/
 └── docs/
     ├── Primera_Presentacion_DW_Vuelos.pdf
     ├── Primera_Presentacion_DW_Vuelos.docx
+    ├── Guia_Exposicion_DW_Vuelos.pdf / .docx
     └── fuente/
         ├── construir_docx.py    Genera el .docx y el .pdf
+        ├── construir_guia.py    Genera la guía de exposición
         ├── diagramas.py         Dibuja los diagramas conceptual, lógico y físico
         ├── capturar_svg.js      Convierte el diagrama a PNG (Chromium)
         └── modelo_fisico.json   Tablas, columnas y tipos tomados del catálogo de PostgreSQL
