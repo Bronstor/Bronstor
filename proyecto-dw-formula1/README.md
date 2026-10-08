@@ -5,18 +5,12 @@ dataset público [Formula 1 World Championship (1950 – 2024)](https://www.kagg
 
 ## Primera presentación (puntos 1 a 5)
 
-- [`docs/Primera_Presentacion_DW_Formula1.pdf`](docs/Primera_Presentacion_DW_Formula1.pdf): entrega en PDF.
-- [`docs/Primera_Presentacion_DW_Formula1.docx`](docs/Primera_Presentacion_DW_Formula1.docx): el mismo documento en Word
-  (Arial 12), para completar la carátula y exportar de nuevo a PDF.
+- [`docs/Primera_Presentacion_DW_Formula1.pdf`](docs/Primera_Presentacion_DW_Formula1.pdf): entrega en PDF (3 páginas, Arial 12).
+- [`docs/Primera_Presentacion_DW_Formula1.docx`](docs/Primera_Presentacion_DW_Formula1.docx): el mismo documento en Word, para completar el encabezado y exportar a PDF.
 
-El documento sigue la consigna punto por punto; cada viñeta de la consigna es una
-sección:
-
-1. **Tema del Proyecto**: tema y dataset de Kaggle; suficiencia de los datos para el análisis, el modelado dimensional y el Data Warehouse; contexto y necesidad de análisis; justificación de la temática.
-2. **Objetivos del Data Warehouse**: objetivo general; objetivos específicos medibles con sus indicadores, consultas y reportes; elementos del diseño (hechos, dimensiones, métricas, granularidad, reportes y cuadros de mando) que se derivan de cada objetivo.
-3. **Modelado Conceptual**: tres DataMarts propuestos y matriz de bus; selección del de mayor valor (*Rendimiento en Carrera*); modelo conceptual con procesos de negocio, hecho y dimensiones; granularidad de cada hecho.
-4. **Modelado Lógico**: tablas de hechos y dimensiones con todos sus atributos; claves primarias, foráneas y sustitutas y relaciones; métricas clasificadas en aditivas, semiaditivas y no aditivas; verificación frente a los objetivos.
-5. **Modelado Físico**: implementación en PostgreSQL 16 con tipos de datos, restricciones, claves e índices; relaciones e integridad referencial probadas; estructura orientada a las consultas analíticas y a la carga ETL.
+El documento sigue los puntos 1 a 5 de la consigna: tema y dataset, objetivos,
+modelo conceptual (tres DataMarts, selección y granularidad), modelo lógico (tablas,
+claves, métricas y verificación) y modelo físico en PostgreSQL 16.
 
 ## Modelo
 
@@ -55,20 +49,19 @@ proyecto-dw-formula1/
 └── docs/
     ├── Primera_Presentacion_DW_Formula1.pdf
     ├── Primera_Presentacion_DW_Formula1.docx
-    └── fuente/              Generador del documento (python-docx) y diagramas
+    └── fuente/
+        ├── construir_docx.py    Genera el .docx y el .pdf
+        └── evidencia/           Salida de PostgreSQL al crear el modelo y probar la integridad
 ```
 
 ## Regenerar el documento
 
-Lo más simple para cambiar la carátula (universidad, integrantes) es editar el
+Lo más simple para completar el encabezado (universidad, integrantes) es editar el
 `.docx` en Word y exportarlo a PDF. Para regenerarlo desde la fuente:
 
 ```bash
 cd docs/fuente
-NODE_PATH=$(npm root -g) python3 construir_docx.py
+python3 construir_docx.py
 ```
 
-Requiere Python 3 con `python-docx`, LibreOffice (`soffice`, para exportar a PDF) y
-Node.js con `playwright` (Chromium, para dibujar los diagramas). El diccionario de
-datos y los diagramas se generan a partir de `docs/fuente/modelo.py`, que debe
-coincidir con `sql/01_crear_esquema_y_tablas.sql`.
+Requiere Python 3 con `python-docx` y LibreOffice (`soffice`) para exportar a PDF.
