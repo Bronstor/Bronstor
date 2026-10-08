@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Data Warehouse Fórmula 1 · Primera presentación</title>
+<style>
+  :root {
+    --tinta: #1d2433;
+    --suave: #5b6475;
+    --rojo: #b3122e;
+    --azul: #24406b;
+    --linea: #d9dfe8;
+    --fondo-th: #e9eef6;
+    --fondo-nota: #f4f7fb;
+  }
+  @page {
+    size: A4;
+    margin: 24mm 20mm 20mm 22mm;
+    @top-left { content: "Data Warehouse · Campeonato Mundial de Fórmula 1"; font: 7.5pt Inter, sans-serif; color: #8a93a3; }
+    @top-right { content: "Primera presentación · Puntos 1 a 5"; font: 7.5pt Inter, sans-serif; color: #8a93a3; }
+    @bottom-right { content: counter(page); font: 600 8.5pt Inter, sans-serif; color: #5b6475; }
+  }
+  @page :first {
+    @top-left { content: none; }
+    @top-right { content: none; }
+    @bottom-right { content: none; }
+  }
+  @page horizontal { size: A4 landscape; margin: 16mm 16mm 14mm 16mm; }
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: Inter, "Liberation Sans", sans-serif; font-size: 9.6pt; line-height: 1.5; color: var(--tinta); background: #fff; }
+  p { margin: 0 0 7pt; text-align: justify; hyphens: auto; }
+  ul, ol { margin: 0 0 8pt; padding-left: 16pt; }
+  li { margin-bottom: 2.5pt; }
+  strong { font-weight: 600; }
+  a { color: var(--azul); text-decoration: none; }
+  .mono, code { font-family: "DejaVu Sans Mono", "Liberation Mono", monospace; font-size: 0.86em; }
+  code { background: #f1f4f9; padding: 0 2pt; border-radius: 2pt; }
+
+  h1.seccion { break-before: page; font-size: 19pt; line-height: 1.2; color: var(--azul); margin: 0 0 12pt; padding-bottom: 6pt; border-bottom: 2.5pt solid var(--rojo); font-weight: 700; }
+  h1.seccion .num { color: var(--rojo); margin-right: 4pt; }
+  h2 { font-size: 12.2pt; color: var(--azul); margin: 16pt 0 6pt; font-weight: 700; break-after: avoid; }
+  h3 { font-size: 10.2pt; color: var(--tinta); margin: 12pt 0 4pt; font-weight: 700; break-after: avoid; }
+
+  /* Portada */
+  .portada { height: 253mm; display: flex; flex-direction: column; position: relative; }
+  .portada .franja { height: 7pt; background: linear-gradient(90deg, var(--rojo) 0 62%, var(--azul) 62% 100%); margin-bottom: 26pt; }
+  .portada .institucion { font-size: 12pt; font-weight: 600; color: var(--azul); line-height: 1.35; text-align: left; }
+  .portada .materia { font-size: 10pt; color: var(--suave); margin-top: 2pt; text-align: left; }
+  .portada .bloque-titulo { margin-top: 62pt; }
+  .portada .etiqueta { font-size: 9pt; font-weight: 700; letter-spacing: 1.2pt; color: var(--rojo); margin-bottom: 8pt; }
+  .portada h1 { font-size: 30pt; line-height: 1.12; color: var(--tinta); margin: 0 0 10pt; font-weight: 800; letter-spacing: -0.4pt; }
+  .portada .subtitulo { font-size: 14pt; color: var(--azul); font-weight: 500; text-align: left; }
+  .portada .entrega { display: inline-block; margin-top: 16pt; padding: 5pt 10pt; border: 1.2pt solid var(--rojo); color: var(--rojo); font-weight: 700; font-size: 10pt; border-radius: 3pt; }
+  .portada .datos { margin-top: auto; border-top: 1pt solid var(--linea); padding-top: 14pt; }
+  .portada table.datos-portada { border-collapse: collapse; font-size: 10pt; }
+  .portada table.datos-portada th { text-align: left; color: var(--suave); font-weight: 500; padding: 3pt 18pt 3pt 0; vertical-align: top; width: 80pt; }
+  .portada table.datos-portada td { padding: 3pt 0; font-weight: 600; }
+
+  /* Índice */
+  .indice h1 { font-size: 19pt; color: var(--azul); margin: 0 0 14pt; padding-bottom: 6pt; border-bottom: 2.5pt solid var(--rojo); }
+  .indice ol { list-style: none; padding: 0; margin: 0; }
+  .indice li { display: flex; align-items: baseline; margin: 0; padding: 1.5pt 0; font-size: 9.2pt; line-height: 1.3; }
+  .indice li.n1 { font-weight: 700; margin-top: 4pt; color: var(--azul); }
+  .indice li.n2 { padding-left: 16pt; }
+  .indice li a { color: inherit; }
+  .indice li .relleno { flex: 1; border-bottom: 1pt dotted #aab3c2; margin: 0 5pt; transform: translateY(-3pt); }
+  .indice li .pag { min-width: 14pt; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Tablas */
+  table.t { width: 100%; border-collapse: collapse; margin: 4pt 0 12pt; font-size: 8.4pt; line-height: 1.35; }
+  table.t caption, table.dicc caption { caption-side: top; text-align: left; font-size: 8.4pt; font-weight: 700; color: var(--suave); padding-bottom: 4pt; }
+  table.t th, table.dicc th { background: var(--fondo-th); color: var(--azul); font-weight: 700; text-align: left; padding: 4pt 5pt; border-bottom: 1.2pt solid #b9c6da; }
+  table.t td { padding: 3.6pt 5pt; border-bottom: 0.6pt solid var(--linea); vertical-align: top; }
+  table.t tr, table.dicc tr { break-inside: avoid; }
+  table.t.junta { break-inside: avoid; }
+  table.t td.c, table.t th.c, table.dicc td.c { text-align: center; }
+  table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.t .ok { color: #1f7a45; font-weight: 700; }
+  table.t tr.destacada td { background: #fdf1f3; font-weight: 600; }
+  table.dicc { width: 100%; border-collapse: collapse; margin: 4pt 0 14pt; font-size: 7.9pt; line-height: 1.32; table-layout: fixed; }
+  table.dicc td { padding: 3pt 4pt; border-bottom: 0.6pt solid var(--linea); vertical-align: top; overflow-wrap: anywhere; }
+  table.dicc td.origen { color: #47505f; font-size: 7.5pt; }
+  table.dicc .mono { font-size: 7.4pt; }
+  table.dicc tbody tr:nth-child(even) td, table.t.cebra tbody tr:nth-child(even) td { background: #f8f9fc; }
+  .clave { display: inline-block; font-size: 6.6pt; font-weight: 700; padding: 0.5pt 3pt; border-radius: 2pt; color: #fff; }
+  .clave-pk { background: #b3122e; } .clave-fk { background: #2f6db5; } .clave-nk { background: #6b4fa3; } .clave-dd { background: #9a5b00; }
+
+  /* Figuras y notas */
+  figure { margin: 6pt 0 14pt; break-inside: avoid; }
+  figure svg.diagrama { width: 100%; height: auto; display: block; }
+  figcaption { font-size: 8.4pt; color: var(--suave); margin-top: 5pt; text-align: center; }
+  figcaption b { color: var(--tinta); }
+  .nota { background: var(--fondo-nota); border-left: 3pt solid var(--azul); padding: 7pt 10pt; margin: 6pt 0 12pt; break-inside: avoid; }
+  .nota p:last-child { margin-bottom: 0; }
+  .nota.roja { border-left-color: var(--rojo); background: #fdf3f5; }
+  .nota .titulo-nota { font-weight: 700; color: var(--azul); margin-bottom: 3pt; }
+  .nota.roja .titulo-nota { color: var(--rojo); }
+  .ficha { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7pt; margin: 8pt 0 14pt; }
+  .ficha div { border: 0.8pt solid var(--linea); border-top: 2.5pt solid var(--azul); padding: 6pt 8pt; border-radius: 0 0 3pt 3pt; }
+  .ficha div:first-child { border-top-color: var(--rojo); }
+  .ficha .k { font-size: 7.4pt; color: var(--suave); font-weight: 600; }
+  .ficha .v { font-size: 10.2pt; font-weight: 700; color: var(--tinta); line-height: 1.25; }
+  .tarjetas { display: grid; grid-template-columns: 1fr; gap: 9pt; margin: 6pt 0 12pt; }
+  .tarjeta { border: 0.8pt solid var(--linea); border-radius: 4pt; padding: 8pt 11pt; break-inside: avoid; }
+  .tarjeta.elegida { border: 1.4pt solid var(--rojo); background: #fffafb; }
+  .tarjeta h3 { margin: 0 0 5pt; }
+  .tarjeta h3 .marca { font-size: 7.6pt; color: #fff; background: var(--rojo); padding: 1pt 5pt; border-radius: 2pt; margin-left: 6pt; vertical-align: 1pt; }
+  .tarjeta dl { display: grid; grid-template-columns: 82pt 1fr; gap: 2pt 8pt; margin: 0; font-size: 8.6pt; }
+  .tarjeta dt { color: var(--suave); font-weight: 600; }
+  .tarjeta dd { margin: 0; }
+  dl.conceptos { display: grid; grid-template-columns: 96pt 1fr; gap: 4pt 10pt; font-size: 9pt; margin: 4pt 0 12pt; }
+  dl.conceptos dt { font-weight: 700; color: var(--azul); }
+  dl.conceptos dd { margin: 0; }
+  .formula { font-family: "DejaVu Sans Mono", monospace; font-size: 7.6pt; }
+
+  /* Código */
+  pre.codigo { font-family: "DejaVu Sans Mono", "Liberation Mono", monospace; font-size: 7pt; line-height: 1.38; background: #f6f8fb; border: 0.6pt solid #e1e6ee; border-left: 3pt solid var(--azul); padding: 7pt 9pt; margin: 4pt 0 12pt; white-space: pre-wrap; overflow-wrap: anywhere; color: #1d2433; }
+  pre.consola { font-family: "DejaVu Sans Mono", monospace; font-size: 6.9pt; line-height: 1.35; background: #1e2430; color: #e6e9ef; padding: 8pt 10pt; border-radius: 3pt; margin: 4pt 0 12pt; white-space: pre-wrap; overflow-wrap: anywhere; break-inside: avoid; }
+  .sql-kw { color: #24406b; font-weight: 700; }
+  .sql-ty { color: #7a3e9d; }
+  .sql-str { color: #a3501b; }
+  .sql-com { color: #6f7c8f; font-style: italic; }
+  .sql-meta { color: #9a5b00; }
+
+  /* Página horizontal */
+  section.horizontal { page: horizontal; }
+  section.horizontal figure { margin: 0; }
+  section.horizontal figcaption { margin-top: 4pt; }
+  .leyenda { display: flex; justify-content: center; gap: 16pt; font-size: 7.8pt; color: var(--suave); margin-top: 5pt; }
+  .leyenda span b { font-weight: 700; }
+  .anexo h2 { margin-top: 10pt; }
+  .referencias p { text-align: left; padding-left: 18pt; text-indent: -18pt; }
+</style>
+</head>
+<body>
+
+<!-- ================================================================ PORTADA -->
+<section class="portada">
+  <div class="franja"></div>
+  <p class="institucion">[Nombre de la universidad]<br>[Facultad · Carrera]</p>
+  <p class="materia">Base de Datos III · Proyecto: Implementación de un Data Warehouse</p>
+  <div class="bloque-titulo">
+    <div class="etiqueta">PROYECTO DE DATA WAREHOUSE</div>
+    <h1>Data Warehouse del Campeonato Mundial de Fórmula 1</h1>
+    <p class="subtitulo">DataMart de Rendimiento en Carrera · Temporadas 1950–2024</p>
+    <div class="entrega">Primera presentación · Puntos 1 a 5</div>
+  </div>
+  <div class="datos">
+    <table class="datos-portada">
+      <tr><th>Docente</th><td>Rodnie Montaño Aguilera</td></tr>
+      <tr><th>Integrantes</th><td>Jhonatan Moisés Villca<br>[Integrante 2]<br>[Integrante 3]</td></tr>
+      <tr><th>Semestre</th><td>II/2026</td></tr>
+      <tr><th>Fecha</th><td>Octubre de 2026</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ================================================================ ÍNDICE -->
+<section class="indice" style="break-before: page;">
+  <h1>Índice</h1>
+  <ol>
+    <li class="n1"><a href="#intro">Introducción</a><span class="relleno"></span><span class="pag" data-toc="intro"></span></li>
+    <li class="n1"><a href="#s1">1. Tema del proyecto</a><span class="relleno"></span><span class="pag" data-toc="s1"></span></li>
+    <li class="n2"><a href="#s1-1">1.1 Tema seleccionado</a><span class="relleno"></span><span class="pag" data-toc="s1-1"></span></li>
+    <li class="n2"><a href="#s1-2">1.2 Conjunto de datos</a><span class="relleno"></span><span class="pag" data-toc="s1-2"></span></li>
+    <li class="n2"><a href="#s1-3">1.3 Contexto de los datos</a><span class="relleno"></span><span class="pag" data-toc="s1-3"></span></li>
+    <li class="n2"><a href="#s1-4">1.4 Necesidad de análisis</a><span class="relleno"></span><span class="pag" data-toc="s1-4"></span></li>
+    <li class="n2"><a href="#s1-5">1.5 Justificación frente a temáticas comunes</a><span class="relleno"></span><span class="pag" data-toc="s1-5"></span></li>
+    <li class="n2"><a href="#s1-6">1.6 Observaciones iniciales de calidad de datos</a><span class="relleno"></span><span class="pag" data-toc="s1-6"></span></li>
+    <li class="n1"><a href="#s2">2. Objetivos del Data Warehouse</a><span class="relleno"></span><span class="pag" data-toc="s2"></span></li>
+    <li class="n2"><a href="#s2-1">2.1 Objetivo general</a><span class="relleno"></span><span class="pag" data-toc="s2-1"></span></li>
+    <li class="n2"><a href="#s2-2">2.2 Objetivos específicos</a><span class="relleno"></span><span class="pag" data-toc="s2-2"></span></li>
+    <li class="n2"><a href="#s2-3">2.3 Indicadores asociados a cada objetivo</a><span class="relleno"></span><span class="pag" data-toc="s2-3"></span></li>
+    <li class="n1"><a href="#s3">3. Modelado conceptual del DataMart</a><span class="relleno"></span><span class="pag" data-toc="s3"></span></li>
+    <li class="n2"><a href="#s3-1">3.1 Procesos de negocio identificados</a><span class="relleno"></span><span class="pag" data-toc="s3-1"></span></li>
+    <li class="n2"><a href="#s3-2">3.2 DataMarts propuestos</a><span class="relleno"></span><span class="pag" data-toc="s3-2"></span></li>
+    <li class="n2"><a href="#s3-3">3.3 Matriz de bus y dimensiones conformadas</a><span class="relleno"></span><span class="pag" data-toc="s3-3"></span></li>
+    <li class="n2"><a href="#s3-4">3.4 Evaluación y selección del DataMart</a><span class="relleno"></span><span class="pag" data-toc="s3-4"></span></li>
+    <li class="n2"><a href="#s3-5">3.5 Modelo conceptual del DataMart seleccionado</a><span class="relleno"></span><span class="pag" data-toc="s3-5"></span></li>
+    <li class="n2"><a href="#s3-6">3.6 Granularidad del hecho</a><span class="relleno"></span><span class="pag" data-toc="s3-6"></span></li>
+    <li class="n2"><a href="#s3-7">3.7 Jerarquías de las dimensiones</a><span class="relleno"></span><span class="pag" data-toc="s3-7"></span></li>
+    <li class="n1"><a href="#s4">4. Modelado lógico del DataMart</a><span class="relleno"></span><span class="pag" data-toc="s4"></span></li>
+    <li class="n2"><a href="#s4-1">4.1 Esquema en estrella</a><span class="relleno"></span><span class="pag" data-toc="s4-1"></span></li>
+    <li class="n2"><a href="#s4-2">4.2 Tablas de dimensiones</a><span class="relleno"></span><span class="pag" data-toc="s4-2"></span></li>
+    <li class="n2"><a href="#s4-3">4.3 Tabla de hechos</a><span class="relleno"></span><span class="pag" data-toc="s4-3"></span></li>
+    <li class="n2"><a href="#s4-4">4.4 Claves y estrategia de dimensiones</a><span class="relleno"></span><span class="pag" data-toc="s4-4"></span></li>
+    <li class="n2"><a href="#s4-5">4.5 Relaciones entre tablas</a><span class="relleno"></span><span class="pag" data-toc="s4-5"></span></li>
+    <li class="n2"><a href="#s4-6">4.6 Métricas y su clasificación</a><span class="relleno"></span><span class="pag" data-toc="s4-6"></span></li>
+    <li class="n2"><a href="#s4-7">4.7 Verificación del modelo frente a los objetivos</a><span class="relleno"></span><span class="pag" data-toc="s4-7"></span></li>
+    <li class="n1"><a href="#s5">5. Modelado físico del DataMart</a><span class="relleno"></span><span class="pag" data-toc="s5"></span></li>
+    <li class="n2"><a href="#s5-1">5.1 Plataforma y convenciones</a><span class="relleno"></span><span class="pag" data-toc="s5-1"></span></li>
+    <li class="n2"><a href="#s5-2">5.2 Tipos de datos</a><span class="relleno"></span><span class="pag" data-toc="s5-2"></span></li>
+    <li class="n2"><a href="#s5-3">5.3 Restricciones e integridad referencial</a><span class="relleno"></span><span class="pag" data-toc="s5-3"></span></li>
+    <li class="n2"><a href="#s5-4">5.4 Índices</a><span class="relleno"></span><span class="pag" data-toc="s5-4"></span></li>
+    <li class="n2"><a href="#s5-5">5.5 Scripts de implementación</a><span class="relleno"></span><span class="pag" data-toc="s5-5"></span></li>
+    <li class="n2"><a href="#s5-6">5.6 Evidencia de la implementación</a><span class="relleno"></span><span class="pag" data-toc="s5-6"></span></li>
+    <li class="n2"><a href="#s5-7">5.7 Preparación para la carga ETL</a><span class="relleno"></span><span class="pag" data-toc="s5-7"></span></li>
+    <li class="n1"><a href="#concl">Conclusiones y próximos pasos</a><span class="relleno"></span><span class="pag" data-toc="concl"></span></li>
+    <li class="n1"><a href="#refs">Referencias</a><span class="relleno"></span><span class="pag" data-toc="refs"></span></li>
+    <li class="n1"><a href="#anexos">Anexos: scripts SQL</a><span class="relleno"></span><span class="pag" data-toc="anexos"></span></li>
+  </ol>
+</section>
+
+<!-- ================================================================ INTRODUCCIÓN -->
+<h1 class="seccion" id="intro">Introducción</h1>
+<p>Este documento corresponde a la primera presentación del proyecto de la asignatura Base de Datos III, cuyo propósito es implementar un Data Warehouse a partir de un conjunto de datos público. En esta entrega se desarrollan los puntos 1 a 5 de la consigna: la selección del tema, los objetivos del Data Warehouse y los modelos conceptual, lógico y físico del DataMart elegido. Los procesos ETL con Apache Hop, los cubos OLAP, los reportes y los cuadros de mando corresponden a la segunda presentación.</p>
+<p>El dominio elegido es el Campeonato Mundial de Fórmula 1. A partir del conjunto de datos histórico publicado en Kaggle, que reúne setenta y cinco temporadas de resultados, se propone un DataMart orientado a medir el rendimiento de pilotos, escuderías y circuitos. El modelo dimensional se implementó en PostgreSQL 16; los scripts completos y su evidencia de ejecución se incluyen en el documento y en los anexos.</p>
+
+<div class="ficha">
+  <div><div class="k">Conjunto de datos</div><div class="v">Formula 1 World Championship 1950–2024 (Kaggle)</div></div>
+  <div><div class="k">DataMart seleccionado</div><div class="v">Rendimiento en Carrera</div></div>
+  <div><div class="k">Modelo</div><div class="v">Estrella: 1 hecho y 6 dimensiones</div></div>
+  <div><div class="k">Granularidad</div><div class="v">Resultado de un piloto con un auto en un Gran Premio</div></div>
+  <div><div class="k">Volumen estimado</div><div class="v">≈ 26 700 hechos (1950–2024)</div></div>
+  <div><div class="k">DBMS</div><div class="v">PostgreSQL 16 · esquema <span class="mono">dw_f1</span></div></div>
+</div>
+
+<!-- ================================================================ 1. TEMA -->
+<h1 class="seccion" id="s1"><span class="num">1.</span> Tema del proyecto</h1>
+
+<h2 id="s1-1">1.1 Tema seleccionado</h2>
+<div class="nota roja">
+  <div class="titulo-nota">Tema</div>
+  <p>Análisis histórico del rendimiento competitivo de pilotos, escuderías y circuitos en el Campeonato Mundial de Fórmula 1, temporadas 1950 a 2024.</p>
+</div>
+<p>La Fórmula 1 es la máxima categoría del automovilismo de monoplazas y está regulada por la Federación Internacional del Automóvil (FIA). Cada temporada se compone de una serie de Grandes Premios —siete en 1950 y veinticuatro en 2024— que se disputan en circuitos de distintos países. En cada carrera los pilotos compiten representando a una escudería (constructor) y, según su posición final, reciben puntos que se acumulan en dos campeonatos: el de Pilotos y el de Constructores.</p>
+<p>Es un deporte intensivo en datos. Los equipos analizan su rendimiento y confiabilidad para decidir inversiones y estrategias; la prensa especializada compara épocas y pilotos; los patrocinadores evalúan la visibilidad que obtienen (victorias, podios, puntos); y los organizadores necesitan saber qué circuitos ofrecen carreras más disputadas. Todas estas necesidades parten de un mismo hecho: <strong>el resultado que obtiene cada piloto en cada Gran Premio</strong>.</p>
+
+<h2 id="s1-2">1.2 Conjunto de datos</h2>
+<table class="t junta">
+  <caption>Ficha del conjunto de datos</caption>
+  <tbody>
+    <tr><td style="width:28%"><strong>Nombre</strong></td><td>Formula 1 World Championship (1950 – 2024)</td></tr>
+    <tr><td><strong>Publicado por</strong></td><td>Rohan Rao, en Kaggle</td></tr>
+    <tr><td><strong>Dirección</strong></td><td><span class="mono">https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020</span></td></tr>
+    <tr><td><strong>Origen de los datos</strong></td><td>Ergast Developer API, base de datos histórica de resultados de la Fórmula 1</td></tr>
+    <tr><td><strong>Formato</strong></td><td>14 archivos CSV relacionados mediante identificadores numéricos (modelo relacional normalizado)</td></tr>
+    <tr><td><strong>Cobertura</strong></td><td>Temporadas 1950 a 2024 (≈ 1 125 Grandes Premios)</td></tr>
+    <tr><td><strong>Valores nulos</strong></td><td>Representados con la cadena <code>\N</code></td></tr>
+  </tbody>
+</table>
+
+<table class="t cebra">
+  <caption>Archivos del conjunto de datos y su uso en el proyecto</caption>
+  <thead><tr><th style="width:21%">Archivo</th><th>Contenido</th><th class="n" style="width:12%">Registros (aprox.)</th><th style="width:24%">Uso</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">races.csv</td><td>Carreras: temporada, ronda, circuito, nombre, fecha y hora</td><td class="n">1 125</td><td>dim_carrera, dim_tiempo</td></tr>
+    <tr><td class="mono">results.csv</td><td>Resultado de cada piloto en cada carrera: grilla, posición, puntos, vueltas, tiempos, estado</td><td class="n">26 700</td><td><strong>Tabla de hechos</strong></td></tr>
+    <tr><td class="mono">drivers.csv</td><td>Pilotos: nombre, código, número, fecha de nacimiento, nacionalidad</td><td class="n">860</td><td>dim_piloto</td></tr>
+    <tr><td class="mono">constructors.csv</td><td>Escuderías y su nacionalidad</td><td class="n">210</td><td>dim_escuderia</td></tr>
+    <tr><td class="mono">circuits.csv</td><td>Circuitos: nombre, localidad, país, coordenadas y altitud</td><td class="n">77</td><td>dim_circuito</td></tr>
+    <tr><td class="mono">status.csv</td><td>Catálogo de estados de finalización (Finished, Engine, Accident…)</td><td class="n">139</td><td>dim_estado</td></tr>
+    <tr><td class="mono">driver_standings.csv</td><td>Puntos y posición de cada piloto en el campeonato tras cada carrera</td><td class="n">34 800</td><td>Métricas de campeonato</td></tr>
+    <tr><td class="mono">sprint_results.csv</td><td>Resultados de las carreras sprint (desde 2021)</td><td class="n">360</td><td>dim_carrera (tiene_sprint)</td></tr>
+    <tr><td class="mono">seasons.csv</td><td>Temporadas y enlace de referencia</td><td class="n">75</td><td>Cubierto por dim_tiempo</td></tr>
+    <tr><td class="mono">qualifying.csv</td><td>Clasificación: posición y tiempos en Q1, Q2 y Q3</td><td class="n">10 500</td><td>DataMart 3 (propuesto)</td></tr>
+    <tr><td class="mono">lap_times.csv</td><td>Tiempo y posición de cada piloto en cada vuelta (desde 1996)</td><td class="n">589 000</td><td>DataMart 2 (propuesto)</td></tr>
+    <tr><td class="mono">pit_stops.csv</td><td>Paradas en boxes: vuelta y duración (desde 2011)</td><td class="n">11 400</td><td>DataMart 2 (propuesto)</td></tr>
+    <tr><td class="mono">constructor_results.csv</td><td>Puntos de cada escudería en cada carrera</td><td class="n">12 600</td><td>DataMart 3 (propuesto)</td></tr>
+    <tr><td class="mono">constructor_standings.csv</td><td>Puntos y posición de cada escudería en el campeonato tras cada carrera</td><td class="n">13 400</td><td>DataMart 3 (propuesto)</td></tr>
+  </tbody>
+</table>
+<p style="font-size:8.4pt;color:var(--suave)">Las cantidades de registros son aproximadas para la versión 1950–2024 del dataset y se confirmarán durante la extracción del proceso ETL.</p>
+
+<h2 id="s1-3">1.3 Contexto de los datos</h2>
+<p>Para interpretar correctamente los datos es necesario conocer los conceptos del dominio que aparecen en los archivos:</p>
+<dl class="conceptos">
+  <dt>Temporada y ronda</dt><dd>Cada año es una temporada del campeonato; la ronda indica el orden de cada Gran Premio dentro de ella (<span class="mono">races.year</span>, <span class="mono">races.round</span>).</dd>
+  <dt>Gran Premio y circuito</dt><dd>Un Gran Premio es una carrera puntuable que se disputa en un circuito. Un mismo circuito puede albergar Grandes Premios con distintos nombres a lo largo de la historia.</dd>
+  <dt>Piloto y escudería</dt><dd>El piloto conduce un auto de una escudería. Un piloto puede cambiar de escudería entre temporadas e incluso durante una misma temporada; en los primeros años varios pilotos compartían un mismo auto.</dd>
+  <dt>Grilla de salida</dt><dd>Posición desde la que larga el piloto (<span class="mono">grid</span>). El valor 0 indica que largó desde los boxes o que no tiene posición asignada.</dd>
+  <dt>Resultado</dt><dd>Posición final clasificada (<span class="mono">position</span>) u otro código (<span class="mono">positionText</span>): R = retirado, D = descalificado, E = excluido, W = retirado antes de largar, F = no clasificó a la carrera, N = no clasificado.</dd>
+  <dt>Estado</dt><dd>Motivo con el que terminó la carrera: «Finished», «+1 Lap», «Engine», «Accident», «Collision», etc. (<span class="mono">status.csv</span>).</dd>
+  <dt>Puntos</dt><dd>Se otorgan según la posición final. El sistema de puntuación cambió varias veces (por ejemplo, 9 puntos por victoria entre 1961 y 1990 y 25 desde 2010), por lo que los puntos de distintas épocas no son directamente comparables.</dd>
+  <dt>Campeonato</dt><dd>Suma de puntos de la temporada. <span class="mono">driver_standings.csv</span> registra los puntos y la posición acumulados de cada piloto después de cada carrera.</dd>
+</dl>
+
+<h2 id="s1-4">1.4 Necesidad de análisis</h2>
+<p>Los datos están organizados en un modelo relacional normalizado de catorce tablas, adecuado para registrar resultados pero no para el análisis histórico. Preguntas como <em>«¿qué escudería dominó cada década?»</em>, <em>«¿en qué circuitos es más determinante largar desde la pole?»</em> o <em>«¿qué pilotos fueron más efectivos si se comparan épocas con el mismo sistema de puntos?»</em> exigen unir varias tablas, interpretar códigos, convertir tiempos almacenados como texto y tratar distintos sistemas de puntuación en cada consulta.</p>
+<p>La necesidad de análisis que el proyecto busca resolver es <strong>evaluar de forma consistente y comparable en el tiempo el rendimiento de pilotos, escuderías y circuitos</strong>: quién gana, con qué frecuencia, con qué confiabilidad y bajo qué condiciones. Los usuarios potenciales son:</p>
+<ul>
+  <li><strong>Equipos (escuderías):</strong> confiabilidad mecánica, conversión de la posición de salida en resultado y comparación con sus rivales.</li>
+  <li><strong>Analistas deportivos y medios:</strong> comparaciones históricas entre pilotos y épocas, dominio de escuderías y evolución del campeonato.</li>
+  <li><strong>Patrocinadores:</strong> pilotos y escuderías con mayor frecuencia de victorias, podios y puntos.</li>
+  <li><strong>Organizadores de Grandes Premios:</strong> circuitos con más adelantamientos y menor dependencia de la posición de salida.</li>
+</ul>
+<p>El Data Warehouse integra y depura estos datos alrededor del resultado de cada carrera, de modo que las preguntas puedan responderse con indicadores, cubos OLAP y cuadros de mando.</p>
+
+<h2 id="s1-5">1.5 Justificación frente a temáticas comunes</h2>
+<p>La consigna excluye temáticas repetitivas como supermercados, hoteles, comercio electrónico o sistemas genéricos de ventas. El tema elegido plantea un problema analítico distinto y con complejidad suficiente para un Data Warehouse:</p>
+<ul>
+  <li><strong>No es un proceso de compra y venta.</strong> El hecho central es un resultado deportivo con métricas de naturaleza diversa: ordinales (posiciones), aditivas (puntos, vueltas), semiaditivas (puntos acumulados del campeonato) y temporales (tiempos de vuelta).</li>
+  <li><strong>Profundidad histórica.</strong> Setenta y cinco temporadas con cambios de reglamento obligan a normalizar los puntos para comparar épocas y a manejar datos que solo existen en ciertos periodos.</li>
+  <li><strong>Varios procesos y granularidades.</strong> Resultados, clasificación, vueltas, paradas en boxes y campeonatos permiten proponer tres DataMarts con dimensiones conformadas.</li>
+  <li><strong>Calidad de datos no trivial.</strong> Nulos codificados como texto, tiempos en formato «m:ss.mmm», pilotos con más de un resultado en la misma carrera y medios puntos en carreras acortadas.</li>
+</ul>
+
+<h2 id="s1-6">1.6 Observaciones iniciales de calidad de datos</h2>
+<p>La revisión de la estructura del dataset permitió identificar los siguientes aspectos, que se tratarán en el proceso ETL de la segunda presentación y que ya se consideraron en el diseño:</p>
+<table class="t cebra">
+  <caption>Hallazgos de calidad y tratamiento previsto</caption>
+  <thead><tr><th style="width:27%">Hallazgo</th><th style="width:33%">Ejemplo</th><th>Tratamiento en el diseño / ETL</th></tr></thead>
+  <tbody>
+    <tr><td>Nulos codificados como texto</td><td><code>\N</code> en <span class="mono">position</span>, <span class="mono">code</span>, <span class="mono">time</span></td><td>Conversión a <code>NULL</code>; columnas que lo admiten declaradas como nulas</td></tr>
+    <tr><td>Tiempos almacenados como texto</td><td><span class="mono">fastestLapTime = "1:27.452"</span></td><td>Conversión a milisegundos (<code>INTEGER</code>) para poder promediar y comparar</td></tr>
+    <tr><td>Datos que existen solo en ciertas épocas</td><td>Vuelta rápida desde 2004, tiempos por vuelta desde 1996, paradas desde 2011</td><td>Se mantienen nulos; la cobertura se indica en los reportes</td></tr>
+    <tr><td>Más de un resultado por piloto en una carrera</td><td>Autos compartidos en los años cincuenta</td><td>El grano se define por resultado (<span class="mono">resultId</span>), no por piloto y carrera</td></tr>
+    <tr><td>Puntos fraccionarios</td><td>Medios puntos en carreras acortadas (p. ej. Bélgica 2021)</td><td>Tipo <code>NUMERIC(5,2)</code></td></tr>
+    <tr><td>Cambios del sistema de puntuación</td><td>9 puntos por victoria (1961–1990) frente a 25 (desde 2010)</td><td>Métrica adicional <span class="mono">puntos_sistema_actual</span></td></tr>
+    <tr><td>Códigos de resultado en texto</td><td>R, D, E, W, F, N en <span class="mono">positionText</span></td><td>Indicadores <span class="mono">es_abandono</span> y <span class="mono">es_finalizado</span></td></tr>
+    <tr><td>Estados muy detallados</td><td>139 estados distintos (Engine, Gearbox, Collision…)</td><td>Agrupación en categorías de análisis en <span class="mono">dim_estado</span></td></tr>
+    <tr><td>500 Millas de Indianápolis (1950–1960)</td><td>Pilotos que solo corrieron esa prueba puntuable</td><td>Se conservan; se identifican por el nombre del Gran Premio</td></tr>
+  </tbody>
+</table>
+
+<!-- ================================================================ 2. OBJETIVOS -->
+<h1 class="seccion" id="s2"><span class="num">2.</span> Objetivos del Data Warehouse</h1>
+
+<h2 id="s2-1">2.1 Objetivo general</h2>
+<div class="nota roja">
+  <p>Diseñar e implementar un Data Warehouse para el Campeonato Mundial de Fórmula 1, comenzando por el DataMart de Rendimiento en Carrera, que integre y depure los resultados históricos de cada Gran Premio (1950–2024) para analizar el rendimiento de pilotos, escuderías y circuitos mediante indicadores, consultas analíticas, cubos OLAP y cuadros de mando que apoyen la toma de decisiones deportivas y comerciales.</p>
+</div>
+
+<h2 id="s2-2">2.2 Objetivos específicos</h2>
+<p>Cada objetivo específico es medible mediante indicadores calculados con las métricas del DataMart (sección 2.3) y define qué hechos, dimensiones y niveles de detalle debe contener el modelo.</p>
+<table class="t cebra">
+  <caption>Objetivos específicos y preguntas de negocio</caption>
+  <thead><tr><th style="width:7%">Código</th><th style="width:58%">Objetivo específico</th><th>Pregunta de negocio</th></tr></thead>
+  <tbody>
+    <tr><td><strong>OE1</strong></td><td>Medir la conversión de la posición de salida en resultado final, calculando el porcentaje de victorias obtenidas desde la pole position y el promedio de posiciones ganadas por temporada, circuito y escudería.</td><td>¿Cuán determinante es largar primero? ¿Qué escuderías remontan más?</td></tr>
+    <tr><td><strong>OE2</strong></td><td>Determinar el nivel de dominio de las escuderías por temporada y por década mediante su participación porcentual en las victorias, los podios y los puntos.</td><td>¿Qué escudería dominó cada época y con qué margen?</td></tr>
+    <tr><td><strong>OE3</strong></td><td>Cuantificar la confiabilidad de las escuderías mediante la tasa de abandono y la tasa de finalización por temporada y circuito, identificando las categorías de causa más frecuentes.</td><td>¿Qué equipos abandonan más y por qué motivo?</td></tr>
+    <tr><td><strong>OE4</strong></td><td>Comparar el rendimiento histórico de los pilotos mediante los puntos por carrera normalizados al sistema actual, las tasas de victoria y de podio y la edad promedio al ganar, y seguir su evolución en el campeonato ronda a ronda.</td><td>¿Quiénes fueron los pilotos más efectivos, comparando épocas de forma justa?</td></tr>
+    <tr><td><strong>OE5</strong></td><td>Caracterizar los circuitos y países sede según la cantidad de Grandes Premios disputados, el índice de adelantamiento, la tasa de abandono y el porcentaje de victorias desde la pole.</td><td>¿En qué circuitos es más difícil adelantar o más frecuente abandonar?</td></tr>
+    <tr><td><strong>OE6</strong></td><td>Evaluar la evolución del ritmo de carrera por circuito y temporada, desde 2004, mediante el tiempo y la velocidad media de la vuelta más rápida y su variación porcentual interanual.</td><td>¿Los autos son cada año más rápidos en cada circuito?</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s2-3">2.3 Indicadores asociados a cada objetivo</h2>
+<p>Los indicadores (KPI) se calculan a partir de las métricas de la tabla de hechos. Las tasas y porcentajes se recalculan siempre desde sus componentes aditivos (numerador y denominador), nunca promediando porcentajes ya calculados.</p>
+<table class="t cebra">
+  <caption>Indicadores, fórmulas y métricas utilizadas</caption>
+  <thead><tr><th style="width:6%">OE</th><th style="width:27%">Indicador</th><th>Fórmula</th><th style="width:13%">Tipo</th></tr></thead>
+  <tbody>
+    <tr><td>OE1</td><td>% de conversión de la pole</td><td class="formula">Σ(es_victoria × es_pole) / Σ es_pole × 100</td><td>Porcentaje</td></tr>
+    <tr><td>OE1</td><td>Promedio de posiciones ganadas</td><td class="formula">AVG(posiciones_ganadas)</td><td>Promedio</td></tr>
+    <tr><td>OE2</td><td>% de victorias en la temporada</td><td class="formula">Σ es_victoria (escudería) / Σ es_victoria (temporada) × 100</td><td>Porcentaje</td></tr>
+    <tr><td>OE2</td><td>% de podios en la temporada</td><td class="formula">Σ es_podio (escudería) / Σ es_podio (temporada) × 100</td><td>Porcentaje</td></tr>
+    <tr><td>OE2</td><td>Cuota de puntos</td><td class="formula">Σ puntos (escudería) / Σ puntos (temporada) × 100</td><td>Porcentaje</td></tr>
+    <tr><td>OE3</td><td>Tasa de abandono</td><td class="formula">Σ es_abandono / N.º participaciones × 100</td><td>Porcentaje</td></tr>
+    <tr><td>OE3</td><td>Tasa de finalización</td><td class="formula">Σ es_finalizado / N.º participaciones × 100</td><td>Porcentaje</td></tr>
+    <tr><td>OE3</td><td>Distribución de causas de abandono</td><td class="formula">Abandonos por categoría de estado / total de abandonos × 100</td><td>Porcentaje</td></tr>
+    <tr><td>OE4</td><td>Puntos normalizados por carrera</td><td class="formula">Σ puntos_sistema_actual / N.º participaciones</td><td>Promedio</td></tr>
+    <tr><td>OE4</td><td>Tasa de victorias y de podios</td><td class="formula">Σ es_victoria (o es_podio) / N.º participaciones × 100</td><td>Porcentaje</td></tr>
+    <tr><td>OE4</td><td>Edad promedio al ganar</td><td class="formula">AVG(edad_piloto) donde es_victoria = 1</td><td>Promedio</td></tr>
+    <tr><td>OE4</td><td>Evolución en el campeonato</td><td class="formula">puntos_acumulados_temporada y posicion_campeonato por ronda</td><td>Último valor</td></tr>
+    <tr><td>OE5</td><td>Grandes Premios disputados</td><td class="formula">COUNT(DISTINCT carrera) por circuito</td><td>Conteo</td></tr>
+    <tr><td>OE5</td><td>Índice de adelantamiento</td><td class="formula">AVG(posiciones_ganadas) por circuito</td><td>Promedio</td></tr>
+    <tr><td>OE5</td><td>Tasa de abandono y % de victorias desde la pole por circuito</td><td class="formula">Iguales a OE3 y OE1, agrupados por circuito</td><td>Porcentaje</td></tr>
+    <tr><td>OE6</td><td>Mejor vuelta del Gran Premio</td><td class="formula">MIN(tiempo_vuelta_rapida_ms)</td><td>Mínimo</td></tr>
+    <tr><td>OE6</td><td>Velocidad media de vuelta rápida</td><td class="formula">AVG(velocidad_vuelta_rapida_kmh)</td><td>Promedio</td></tr>
+    <tr><td>OE6</td><td>Variación interanual del ritmo</td><td class="formula">(velocidad año t − velocidad año t−1) / velocidad año t−1 × 100</td><td>Porcentaje</td></tr>
+  </tbody>
+</table>
+
+<!-- ================================================================ 3. CONCEPTUAL -->
+<h1 class="seccion" id="s3"><span class="num">3.</span> Modelado conceptual del DataMart</h1>
+
+<h2 id="s3-1">3.1 Procesos de negocio identificados</h2>
+<p>Siguiendo la metodología dimensional de Kimball, primero se identificaron los procesos de negocio que generan eventos medibles en las fuentes de datos:</p>
+<table class="t cebra junta">
+  <caption>Procesos de negocio presentes en el conjunto de datos</caption>
+  <thead><tr><th style="width:22%">Proceso</th><th>Evento que se registra</th><th style="width:24%">Fuente</th><th style="width:17%">Cobertura</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Resultado de carrera</strong></td><td>Posición, puntos, vueltas y estado final de cada piloto en un Gran Premio</td><td class="mono">results, races</td><td>1950–2024</td></tr>
+    <tr><td>Clasificación</td><td>Tiempos de las sesiones Q1, Q2 y Q3 que definen la grilla</td><td class="mono">qualifying</td><td>Completa desde 2003</td></tr>
+    <tr><td>Vueltas en carrera</td><td>Tiempo y posición de cada piloto en cada vuelta</td><td class="mono">lap_times</td><td>1996–2024</td></tr>
+    <tr><td>Paradas en boxes</td><td>Vuelta y duración de cada parada</td><td class="mono">pit_stops</td><td>2011–2024</td></tr>
+    <tr><td>Campeonato de pilotos</td><td>Puntos, posición y victorias acumulados tras cada ronda</td><td class="mono">driver_standings</td><td>1950–2024</td></tr>
+    <tr><td>Campeonato de constructores</td><td>Puntos y posición de cada escudería tras cada ronda</td><td class="mono">constructor_standings, constructor_results</td><td>1958–2024</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s3-2">3.2 DataMarts propuestos</h2>
+<p>A partir de los procesos anteriores se proponen tres DataMarts, cada uno orientado a un grupo de usuarios y a un tipo de análisis distinto:</p>
+<div class="tarjetas">
+  <div class="tarjeta elegida">
+    <h3>DataMart 1 · Rendimiento en Carrera <span class="marca">SELECCIONADO</span></h3>
+    <dl>
+      <dt>Procesos</dt><dd>Resultado de carrera; el campeonato de pilotos se incorpora como métrica acumulada.</dd>
+      <dt>Hecho y grano</dt><dd><span class="mono">fact_resultado_carrera</span>: un registro por resultado de un piloto con un auto en un Gran Premio (≈ 26 700).</dd>
+      <dt>Dimensiones</dt><dd>Tiempo, Carrera, Circuito, Piloto, Escudería, Estado.</dd>
+      <dt>Métricas</dt><dd>Puntos, posiciones, posiciones ganadas, vueltas, tiempos, vuelta rápida, edad; indicadores de victoria, podio, pole y abandono; puntos acumulados.</dd>
+      <dt>Usuarios</dt><dd>Analistas deportivos, equipos, medios y patrocinadores.</dd>
+      <dt>Cobertura</dt><dd>Completa, 1950–2024.</dd>
+    </dl>
+  </div>
+  <div class="tarjeta">
+    <h3>DataMart 2 · Estrategia en Pista</h3>
+    <dl>
+      <dt>Procesos</dt><dd>Vueltas en carrera y paradas en boxes.</dd>
+      <dt>Hechos y grano</dt><dd><span class="mono">fact_vuelta</span>: un registro por vuelta de un piloto en una carrera (≈ 589 000). <span class="mono">fact_parada_boxes</span>: un registro por parada de un piloto en una carrera (≈ 11 400).</dd>
+      <dt>Dimensiones</dt><dd>Tiempo, Carrera, Circuito, Piloto, Escudería (derivada del resultado del piloto en esa carrera).</dd>
+      <dt>Métricas</dt><dd>Tiempo de vuelta, posición en cada vuelta, duración de la parada, vuelta de la parada.</dd>
+      <dt>Usuarios</dt><dd>Ingenieros de estrategia de los equipos.</dd>
+      <dt>Limitación</dt><dd>Solo desde 1996 (vueltas) y 2011 (paradas).</dd>
+    </dl>
+  </div>
+  <div class="tarjeta">
+    <h3>DataMart 3 · Clasificación y Campeonato</h3>
+    <dl>
+      <dt>Procesos</dt><dd>Clasificación y campeonatos de pilotos y de constructores.</dd>
+      <dt>Hechos y grano</dt><dd><span class="mono">fact_clasificacion</span>: un registro por piloto en la clasificación de un Gran Premio. <span class="mono">fact_posicion_campeonato</span>: instantánea periódica con los puntos y la posición de cada piloto o escudería tras cada ronda.</dd>
+      <dt>Dimensiones</dt><dd>Tiempo, Carrera, Circuito, Piloto, Escudería.</dd>
+      <dt>Métricas</dt><dd>Tiempos Q1–Q3 y posición de clasificación (no aditivas); puntos y victorias acumulados (semiaditivas).</dd>
+      <dt>Usuarios</dt><dd>Medios, aficionados y organizadores.</dd>
+      <dt>Limitación</dt><dd>Clasificación completa solo desde 2003.</dd>
+    </dl>
+  </div>
+</div>
+
+<h2 id="s3-3">3.3 Matriz de bus y dimensiones conformadas</h2>
+<p>La matriz de bus relaciona cada proceso de negocio con las dimensiones que lo describen. Las dimensiones compartidas se diseñan una sola vez (<em>dimensiones conformadas</em>) para que los tres DataMarts puedan integrarse en el futuro en un mismo Data Warehouse.</p>
+<table class="t junta">
+  <caption>Matriz de bus del Data Warehouse de Fórmula 1</caption>
+  <thead><tr><th>Proceso de negocio</th><th class="c">Tiempo</th><th class="c">Carrera</th><th class="c">Circuito</th><th class="c">Piloto</th><th class="c">Escudería</th><th class="c">Estado</th><th>DataMart</th></tr></thead>
+  <tbody>
+    <tr class="destacada"><td>Resultado de carrera</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td>1 · Rendimiento en Carrera</td></tr>
+    <tr><td>Vueltas en carrera</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓*</td><td class="c"></td><td>2 · Estrategia en Pista</td></tr>
+    <tr><td>Paradas en boxes</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓*</td><td class="c"></td><td>2 · Estrategia en Pista</td></tr>
+    <tr><td>Clasificación</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c"></td><td>3 · Clasificación y Campeonato</td></tr>
+    <tr><td>Campeonato de pilotos</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c"></td><td class="c"></td><td>3 (y métrica acumulada en 1)</td></tr>
+    <tr><td>Campeonato de constructores</td><td class="c">✓</td><td class="c">✓</td><td class="c">✓</td><td class="c"></td><td class="c">✓</td><td class="c"></td><td>3 · Clasificación y Campeonato</td></tr>
+  </tbody>
+</table>
+<p style="font-size:8.4pt;color:var(--suave)">* La escudería no está en el archivo de origen; se obtiene del resultado del mismo piloto en la misma carrera.</p>
+
+<h2 id="s3-4">3.4 Evaluación y selección del DataMart</h2>
+<p>Para elegir el DataMart a desarrollar se evaluaron las tres propuestas con criterios ponderados (puntaje de 1 a 5):</p>
+<table class="t junta">
+  <caption>Matriz de evaluación de los DataMarts propuestos</caption>
+  <thead><tr><th>Criterio</th><th class="n">Peso</th><th class="n">DM1 Rendimiento</th><th class="n">DM2 Estrategia</th><th class="n">DM3 Clasificación</th></tr></thead>
+  <tbody>
+    <tr><td>Alineación con los objetivos del proyecto</td><td class="n">30 %</td><td class="n">5</td><td class="n">2</td><td class="n">3</td></tr>
+    <tr><td>Cobertura histórica de los datos</td><td class="n">25 %</td><td class="n">5</td><td class="n">2</td><td class="n">4</td></tr>
+    <tr><td>Disponibilidad y calidad de los datos</td><td class="n">20 %</td><td class="n">4</td><td class="n">3</td><td class="n">4</td></tr>
+    <tr><td>Valor para los usuarios del negocio</td><td class="n">15 %</td><td class="n">5</td><td class="n">4</td><td class="n">4</td></tr>
+    <tr><td>Viabilidad del ETL y de los cubos OLAP</td><td class="n">10 %</td><td class="n">5</td><td class="n">3</td><td class="n">4</td></tr>
+    <tr class="destacada"><td>Puntaje ponderado</td><td class="n">100 %</td><td class="n">4,80</td><td class="n">2,60</td><td class="n">3,70</td></tr>
+  </tbody>
+</table>
+<p>Se selecciona el <strong>DataMart 1 · Rendimiento en Carrera</strong> por las siguientes razones:</p>
+<ol>
+  <li>El resultado de carrera es el proceso central del deporte: de él derivan los puntos, las victorias y los campeonatos.</li>
+  <li>Es el único proceso con cobertura completa de 1950 a 2024, lo que permite el análisis histórico entre épocas.</li>
+  <li>Permite responder los seis objetivos específicos planteados.</li>
+  <li>Sus dimensiones (Tiempo, Carrera, Circuito, Piloto, Escudería) son las dimensiones conformadas que reutilizarán los DataMarts 2 y 3.</li>
+  <li>Su volumen es manejable para la carga con Apache Hop y, al mismo tiempo, presenta suficientes problemas de calidad y transformación para justificar el proceso ETL.</li>
+</ol>
+
+<h2 id="s3-5">3.5 Modelo conceptual del DataMart seleccionado</h2>
+<p>El proceso de negocio modelado es la <strong>disputa de un Gran Premio</strong>, concretamente el resultado oficial que obtiene cada participante. El hecho <em>Resultado de carrera</em> se describe mediante seis dimensiones que responden a las preguntas <em>cuándo</em> (Tiempo), <em>qué evento</em> (Carrera), <em>dónde</em> (Circuito), <em>quién</em> (Piloto), <em>con qué equipo</em> (Escudería) y <em>cómo terminó</em> (Estado).</p>
+<figure>
+  <!--DIAGRAMA_CONCEPTUAL-->
+  <figcaption><b>Figura 1.</b> Modelo conceptual del DataMart Rendimiento en Carrera: hecho central, dimensiones y jerarquías.</figcaption>
+</figure>
+<table class="t cebra junta">
+  <caption>Elementos del modelo conceptual</caption>
+  <thead><tr><th style="width:18%">Elemento</th><th style="width:17%">Tipo</th><th>Descripción</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Resultado de carrera</strong></td><td>Hecho</td><td>Desempeño de un piloto en un Gran Premio: posiciones, puntos, vueltas, tiempos e indicadores de victoria, podio, pole y abandono.</td></tr>
+    <tr><td>Tiempo</td><td>Dimensión</td><td>Fecha de la carrera con su jerarquía de calendario hasta la década.</td></tr>
+    <tr><td>Carrera</td><td>Dimensión</td><td>El Gran Premio: temporada, ronda, nombre, carrera sprint y sistema de puntuación vigente.</td></tr>
+    <tr><td>Circuito</td><td>Dimensión</td><td>Lugar de la carrera, con su jerarquía geográfica (continente, país, localidad).</td></tr>
+    <tr><td>Piloto</td><td>Dimensión</td><td>Datos personales y deportivos del piloto.</td></tr>
+    <tr><td>Escudería</td><td>Dimensión</td><td>Equipo o constructor con el que corrió el piloto.</td></tr>
+    <tr><td>Estado</td><td>Dimensión</td><td>Forma en que terminó la carrera, agrupada en categorías (finalizó, falla mecánica, accidente…).</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s3-6">3.6 Granularidad del hecho</h2>
+<div class="nota roja">
+  <div class="titulo-nota">Declaración del grano</div>
+  <p>Cada registro de la tabla de hechos representa <strong>el resultado oficial de un piloto, conduciendo un auto de una escudería, en un Gran Premio del Campeonato Mundial</strong>. Equivale a una fila de <span class="mono">results.csv</span> (identificada por <span class="mono">resultId</span>).</p>
+</div>
+<p><strong>Ejemplo de un registro:</strong> Max Verstappen · Red Bull · Gran Premio de Baréin 2023 (5 de marzo de 2023): largó 1.º, terminó 1.º, 25 puntos, 57 vueltas, estado «Finished».</p>
+<ul>
+  <li><strong>Es el grano atómico</strong> disponible para el proceso de resultados. A partir de él se puede agregar por temporada, década, escudería, país o categoría sin perder información.</li>
+  <li><strong>No se usa «piloto por carrera»</strong> como grano porque, en las primeras temporadas, un piloto podía compartir autos y tener más de un resultado en el mismo Gran Premio. Por eso la unicidad se garantiza con <span class="mono">id_resultado_origen</span>.</li>
+  <li><strong>Queda fuera del grano</strong> el detalle por vuelta, las paradas en boxes y la clasificación (DataMarts 2 y 3). Las carreras sprint se identifican en la dimensión Carrera, pero sus resultados no forman parte de este hecho.</li>
+  <li><strong>Tipo de tabla de hechos:</strong> transaccional; cada fila corresponde a un evento. Los puntos acumulados del campeonato se agregan como una métrica semiaditiva del mismo evento.</li>
+  <li><strong>Volumen:</strong> ≈ 26 700 registros para 1950–2024 y un crecimiento aproximado de 480 registros por temporada (24 carreras × 20 pilotos).</li>
+</ul>
+
+<h2 id="s3-7">3.7 Jerarquías de las dimensiones</h2>
+<p>Las jerarquías permiten navegar desde niveles agregados hacia el detalle (<em>drill-down</em>) y servirán como base para los niveles de los cubos OLAP.</p>
+<table class="t cebra junta">
+  <caption>Jerarquías definidas</caption>
+  <thead><tr><th style="width:15%">Dimensión</th><th style="width:43%">Jerarquía (de lo general al detalle)</th><th>Uso en el análisis</th></tr></thead>
+  <tbody>
+    <tr><td>Tiempo</td><td>Década → Año → Semestre → Trimestre → Mes → Fecha</td><td>Evolución histórica y comparación de épocas</td></tr>
+    <tr><td>Carrera</td><td>Temporada → Gran Premio (ronda)</td><td>Rendimiento por temporada y evolución ronda a ronda</td></tr>
+    <tr><td>Circuito</td><td>Continente → País → Localidad → Circuito</td><td>Análisis geográfico y efecto del circuito</td></tr>
+    <tr><td>Piloto</td><td>Nacionalidad → Piloto</td><td>Rankings de pilotos y de países</td></tr>
+    <tr><td>Escudería</td><td>Nacionalidad → Escudería</td><td>Dominio de equipos</td></tr>
+    <tr><td>Estado</td><td>Categoría → Estado</td><td>Causas de abandono</td></tr>
+  </tbody>
+</table>
+
+<!-- ================================================================ 4. LÓGICO -->
+<h1 class="seccion" id="s4"><span class="num">4.</span> Modelado lógico del DataMart</h1>
+
+<h2 id="s4-1">4.1 Esquema en estrella</h2>
+<p>El modelo lógico adopta un <strong>esquema en estrella</strong>: una tabla de hechos central, <span class="mono">fact_resultado_carrera</span>, rodeada por seis tablas de dimensiones desnormalizadas. Se descartó el esquema copo de nieve —por ejemplo, separar país o nacionalidad en tablas propias— porque las dimensiones son pequeñas (menos de 1 200 filas, salvo Tiempo) y la estrella simplifica las consultas, la carga ETL y la definición de los cubos OLAP de la segunda etapa.</p>
+<p>La Figura 2, en la página siguiente, muestra todas las tablas con sus atributos, tipos de datos y claves. Cada dimensión se relaciona con la tabla de hechos mediante una relación uno a muchos (1:N): un miembro de la dimensión puede aparecer en muchos resultados, y cada resultado referencia exactamente un miembro de cada dimensión.</p>
+<div class="nota">
+  <div class="titulo-nota">Resumen del modelo lógico</div>
+  <p>7 tablas · 6 dimensiones con 51 atributos · 1 tabla de hechos con 32 columnas: 1 clave primaria, 6 claves foráneas, 3 dimensiones degeneradas, 14 métricas, 7 indicadores 0/1 y 1 columna de auditoría.</p>
+</div>
+
+<section class="horizontal">
+  <figure>
+    <!--DIAGRAMA_LOGICO-->
+    <figcaption><b>Figura 2.</b> Modelo lógico en estrella del DataMart Rendimiento en Carrera.</figcaption>
+    <div class="leyenda">
+      <span><b style="color:#b3122e">PK</b> clave primaria (sustituta)</span>
+      <span><b style="color:#2f6db5">FK</b> clave foránea</span>
+      <span><b style="color:#6b4fa3">NK</b> clave natural (única)</span>
+      <span><b style="color:#9a5b00">DD</b> dimensión degenerada</span>
+      <span><b>?</b> admite nulos</span>
+      <span><b>‖ ──&lt;</b> relación 1 : N</span>
+    </div>
+  </figure>
+</section>
+
+<h2 id="s4-2">4.2 Tablas de dimensiones</h2>
+<p>A continuación se detalla cada dimensión con sus atributos, tipo de dato, claves, nulabilidad, descripción y origen en el dataset (o regla de transformación del ETL).</p>
+<h3>Dimensión Tiempo</h3>
+<p>Calendario diario de 1950 a 2030, generado por SQL antes del ETL. Usa una clave sustituta inteligente (AAAAMMDD), habitual en dimensiones de fecha, que facilita la lectura y la partición por fecha.</p>
+<!--DICC:dim_tiempo-->
+<h3>Dimensión Carrera</h3>
+<p>Un registro por Gran Premio. Conserva el sistema de puntuación vigente para interpretar correctamente los puntos de cada época.</p>
+<!--DICC:dim_carrera-->
+<h3>Dimensión Circuito</h3>
+<p>Circuitos donde se disputaron los Grandes Premios. El continente se deriva del país en el ETL para completar la jerarquía geográfica.</p>
+<!--DICC:dim_circuito-->
+<h3>Dimensión Piloto</h3>
+<p>Pilotos que participaron en al menos un Gran Premio. Los atributos no cambian en el tiempo, por lo que se aplica la estrategia de cambios lentos de tipo 1 (una corrección sobrescribe el valor).</p>
+<!--DICC:dim_piloto-->
+<h3>Dimensión Escudería</h3>
+<p>Constructores o equipos. En la fuente, un cambio de nombre comercial (por ejemplo, Toro Rosso → AlphaTauri) ya figura como otro constructor, por lo que basta el tipo 1.</p>
+<!--DICC:dim_escuderia-->
+<h3>Dimensión Estado</h3>
+<p>Estado con el que el piloto terminó la carrera. La categoría agrupa los 139 estados originales en siete grupos útiles para el análisis de confiabilidad.</p>
+<!--DICC:dim_estado-->
+
+<h2 id="s4-3">4.3 Tabla de hechos</h2>
+<p>La tabla <span class="mono">fact_resultado_carrera</span> contiene las claves foráneas hacia las seis dimensiones, tres dimensiones degeneradas (atributos del evento que no justifican una tabla propia), las métricas numéricas y siete indicadores 0/1. Los indicadores se almacenan como <code>SMALLINT</code> para que puedan sumarse directamente en las consultas y en los cubos OLAP: la suma de <span class="mono">es_victoria</span> es el número de victorias.</p>
+<!--DICC:fact_resultado_carrera-->
+
+<h2 id="s4-4">4.4 Claves y estrategia de dimensiones</h2>
+<table class="t cebra junta">
+  <caption>Tipos de claves utilizados</caption>
+  <thead><tr><th style="width:20%">Tipo de clave</th><th>Implementación</th><th style="width:30%">Ejemplo</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sustituta</strong></td><td>Entero generado por el DBMS (<code>IDENTITY</code>) en cada dimensión; en Tiempo, clave inteligente AAAAMMDD.</td><td class="mono">sk_piloto; sk_tiempo = 20230305</td></tr>
+    <tr><td><strong>Natural</strong></td><td>Identificador de la fuente, con restricción <code>UNIQUE</code>. El ETL la usa para buscar la clave sustituta.</td><td class="mono">id_piloto_origen = drivers.driverId</td></tr>
+    <tr><td><strong>Foránea</strong></td><td>Seis columnas <span class="mono">sk_*</span> obligatorias en la tabla de hechos, una por dimensión.</td><td class="mono">fk_fact_resultado_piloto</td></tr>
+    <tr><td><strong>Primaria del hecho</strong></td><td>Clave sustituta <span class="mono">sk_resultado</span>; la unicidad del grano se garantiza con <code>UNIQUE (id_resultado_origen)</code>.</td><td class="mono">uq_fact_resultado_origen</td></tr>
+    <tr><td><strong>Dimensión degenerada</strong></td><td>Atributos del evento sin tabla propia.</td><td class="mono">id_resultado_origen, numero_auto, codigo_posicion</td></tr>
+  </tbody>
+</table>
+<p><strong>¿Por qué claves sustitutas?</strong> Independizan el Data Warehouse de los identificadores de la fuente, hacen más eficientes las uniones (enteros pequeños), permiten representar miembros especiales como «Desconocido» y dejan abierta la posibilidad de historizar cambios (tipo 2) en el futuro sin modificar la tabla de hechos.</p>
+<p><strong>Dimensiones de cambio lento:</strong> todas las dimensiones usan el <strong>tipo 1</strong> (sobrescritura), porque sus atributos descriptivos no cambian con el tiempo o, cuando cambian (como el nombre de una escudería), la fuente ya los registra como un miembro nuevo.</p>
+<p><strong>Miembro desconocido:</strong> las dimensiones Circuito, Piloto, Escudería y Estado tienen una fila con clave <span class="mono">-1</span> («Desconocido»). Si un resultado referencia un valor inexistente, el ETL asigna <span class="mono">-1</span> en lugar de descartar el hecho, lo que preserva los totales. Un resultado sin carrera válida se rechaza, porque la carrera determina la fecha y el circuito.</p>
+
+<h2 id="s4-5">4.5 Relaciones entre tablas</h2>
+<table class="t cebra junta">
+  <caption>Relaciones del esquema en estrella</caption>
+  <thead><tr><th style="width:17%">Dimensión (1)</th><th style="width:22%">Columna en los hechos (N)</th><th style="width:28%">Restricción</th><th>Regla de negocio</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">dim_tiempo</td><td class="mono">sk_tiempo</td><td class="mono">fk_fact_resultado_tiempo</td><td>Cada resultado ocurre en una fecha</td></tr>
+    <tr><td class="mono">dim_carrera</td><td class="mono">sk_carrera</td><td class="mono">fk_fact_resultado_carrera</td><td>Cada resultado pertenece a un Gran Premio</td></tr>
+    <tr><td class="mono">dim_circuito</td><td class="mono">sk_circuito</td><td class="mono">fk_fact_resultado_circuito</td><td>Cada resultado se obtiene en un circuito</td></tr>
+    <tr><td class="mono">dim_piloto</td><td class="mono">sk_piloto</td><td class="mono">fk_fact_resultado_piloto</td><td>Cada resultado corresponde a un piloto</td></tr>
+    <tr><td class="mono">dim_escuderia</td><td class="mono">sk_escuderia</td><td class="mono">fk_fact_resultado_escuderia</td><td>El piloto corre con una escudería en esa carrera</td></tr>
+    <tr><td class="mono">dim_estado</td><td class="mono">sk_estado</td><td class="mono">fk_fact_resultado_estado</td><td>Cada resultado tiene un estado final</td></tr>
+  </tbody>
+</table>
+<p>Todas las claves foráneas son obligatorias (<code>NOT NULL</code>) y usan la acción por defecto <code>NO ACTION</code>: no se puede eliminar un miembro de una dimensión mientras existan hechos que lo referencien.</p>
+
+<h2 id="s4-6">4.6 Métricas y su clasificación</h2>
+<p>Las métricas se clasifican según las dimensiones a lo largo de las cuales pueden sumarse con significado:</p>
+<table class="t cebra">
+  <caption>Clasificación de las métricas de la tabla de hechos</caption>
+  <thead><tr><th style="width:27%">Métrica</th><th style="width:13%">Clasificación</th><th style="width:22%">Agregación válida</th><th>Justificación</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">puntos, puntos_sistema_actual</td><td><strong>Aditiva</strong></td><td>SUM en todas las dimensiones</td><td>Los puntos de varias carreras, pilotos o escuderías se suman (base de los campeonatos).</td></tr>
+    <tr><td class="mono">vueltas_completadas</td><td><strong>Aditiva</strong></td><td>SUM</td><td>Total de vueltas recorridas por piloto, escudería o temporada.</td></tr>
+    <tr><td class="mono">posiciones_ganadas</td><td><strong>Aditiva</strong></td><td>SUM, AVG</td><td>Total o promedio de posiciones ganadas en una temporada o en una trayectoria.</td></tr>
+    <tr><td class="mono">es_victoria, es_podio, es_pole, es_en_puntos, es_vuelta_rapida, es_finalizado, es_abandono</td><td><strong>Aditiva</strong> (indicador 0/1)</td><td>SUM = conteo</td><td>La suma del indicador cuenta victorias, podios, poles, abandonos, etc.</td></tr>
+    <tr><td class="mono">puntos_acumulados_temporada</td><td><strong>Semiaditiva</strong></td><td>SUM entre pilotos de una misma ronda; en el tiempo, último valor o MAX</td><td>Es un saldo acumulado: sumarlo entre rondas cuenta los mismos puntos varias veces.</td></tr>
+    <tr><td class="mono">posicion_salida, posicion_final, orden_llegada, posicion_campeonato, ranking_vuelta_rapida</td><td><strong>No aditiva</strong></td><td>MIN, AVG, moda, conteos</td><td>Son valores ordinales: sumar posiciones no tiene significado.</td></tr>
+    <tr><td class="mono">tiempo_carrera_ms</td><td><strong>No aditiva</strong></td><td>AVG, MIN</td><td>Depende de la longitud de cada carrera; sumar tiempos de distintos pilotos no tiene significado.</td></tr>
+    <tr><td class="mono">tiempo_vuelta_rapida_ms, velocidad_vuelta_rapida_kmh</td><td><strong>No aditiva</strong></td><td>MIN, MAX, AVG</td><td>Miden ritmo, no cantidad.</td></tr>
+    <tr><td class="mono">edad_piloto</td><td><strong>No aditiva</strong></td><td>AVG, MIN, MAX</td><td>Atributo medido en el momento del evento.</td></tr>
+    <tr><td>Indicadores derivados (tasas y porcentajes)</td><td><strong>No aditivos</strong></td><td>Se recalculan desde sus componentes</td><td>Ejemplo: tasa de abandono = Σ es_abandono / N.º participaciones; nunca se promedian porcentajes.</td></tr>
+  </tbody>
+</table>
+<p><strong>Regla para la métrica semiaditiva:</strong> si por autos compartidos un piloto tiene más de un registro en la misma carrera, <span class="mono">puntos_acumulados_temporada</span> y <span class="mono">posicion_campeonato</span> se cargan solo en el registro con mejor orden de llegada (en los demás quedan nulos), para no duplicar el saldo al sumar entre pilotos.</p>
+
+<h2 id="s4-7">4.7 Verificación del modelo frente a los objetivos</h2>
+<p>La siguiente matriz comprueba que cada objetivo específico puede responderse con las métricas y atributos del modelo:</p>
+<table class="t cebra junta">
+  <caption>Trazabilidad entre objetivos y modelo lógico</caption>
+  <thead><tr><th style="width:6%">OE</th><th style="width:38%">Métricas de la tabla de hechos</th><th>Dimensiones y atributos</th><th class="c" style="width:9%">Cubierto</th></tr></thead>
+  <tbody>
+    <tr><td>OE1</td><td class="mono">es_pole, es_victoria, posiciones_ganadas</td><td>Carrera (temporada), Circuito, Escudería</td><td class="c ok">✓</td></tr>
+    <tr><td>OE2</td><td class="mono">es_victoria, es_podio, puntos</td><td>Carrera (temporada), Tiempo (década), Escudería</td><td class="c ok">✓</td></tr>
+    <tr><td>OE3</td><td class="mono">es_abandono, es_finalizado</td><td>Estado (categoría), Escudería, Carrera, Circuito</td><td class="c ok">✓</td></tr>
+    <tr><td>OE4</td><td class="mono">puntos_sistema_actual, es_victoria, es_podio, edad_piloto, puntos_acumulados_temporada, posicion_campeonato</td><td>Piloto, Carrera (temporada, ronda)</td><td class="c ok">✓</td></tr>
+    <tr><td>OE5</td><td class="mono">posiciones_ganadas, es_abandono, es_pole, es_victoria</td><td>Circuito (continente, país, circuito)</td><td class="c ok">✓</td></tr>
+    <tr><td>OE6</td><td class="mono">tiempo_vuelta_rapida_ms, velocidad_vuelta_rapida_kmh</td><td>Circuito, Carrera (temporada)</td><td class="c ok">✓</td></tr>
+  </tbody>
+</table>
+<p>Para cada objetivo se escribió una consulta analítica (Anexo D) que se ejecutó correctamente sobre el modelo físico en PostgreSQL 16 con datos de prueba. Los resultados reales se obtendrán después de la carga ETL. Como ejemplo, la consulta del OE2 calcula la participación de cada escudería en las victorias, los podios y los puntos de cada temporada usando funciones de ventana:</p>
+<!--EXTRACTO:04_consultas_objetivos.sql|WITH por_escuderia AS|ORDER BY temporada, puntos DESC;-->
+<p>Y la consulta del OE4 muestra el uso correcto de la métrica semiaditiva: el campeón de cada temporada se obtiene tomando los puntos acumulados en la última ronda, sin sumarlos entre rondas:</p>
+<!--EXTRACTO:04_consultas_objetivos.sql|SELECT DISTINCT ON (c.temporada)|ORDER BY c.temporada, c.ronda DESC;-->
+
+<!-- ================================================================ 5. FÍSICO -->
+<h1 class="seccion" id="s5"><span class="num">5.</span> Modelado físico del DataMart</h1>
+
+<h2 id="s5-1">5.1 Plataforma y convenciones</h2>
+<table class="t cebra junta">
+  <caption>Decisiones de implementación</caption>
+  <tbody>
+    <tr><td style="width:24%"><strong>DBMS</strong></td><td>PostgreSQL 16: software libre, con columnas <code>IDENTITY</code>, restricciones <code>CHECK</code>, índices parciales y funciones de ventana; se conecta por JDBC con Apache Hop y con las herramientas OLAP.</td></tr>
+    <tr><td><strong>Base de datos</strong></td><td><span class="mono">dw_formula1</span>, codificación UTF-8.</td></tr>
+    <tr><td><strong>Esquema</strong></td><td><span class="mono">dw_f1</span>, que separa los objetos del DataMart; las tablas de preparación del ETL podrán ubicarse en otro esquema.</td></tr>
+    <tr><td><strong>Nombres de tablas</strong></td><td>Prefijo <span class="mono">dim_</span> para dimensiones y <span class="mono">fact_</span> para hechos; en español, minúsculas y sin tildes.</td></tr>
+    <tr><td><strong>Nombres de columnas</strong></td><td><span class="mono">sk_</span> clave sustituta, <span class="mono">id_*_origen</span> clave natural, <span class="mono">es_</span> indicador 0/1.</td></tr>
+    <tr><td><strong>Restricciones e índices</strong></td><td><span class="mono">pk_</span>, <span class="mono">fk_</span>, <span class="mono">uq_</span>, <span class="mono">ck_</span> e <span class="mono">ix_</span> seguidos del nombre de la tabla y el propósito.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s5-2">5.2 Tipos de datos</h2>
+<table class="t cebra">
+  <caption>Criterios para la elección de tipos de datos</caption>
+  <thead><tr><th style="width:28%">Dato</th><th style="width:22%">Tipo físico</th><th>Justificación</th></tr></thead>
+  <tbody>
+    <tr><td>Claves sustitutas de dimensiones</td><td class="mono">INTEGER IDENTITY</td><td>Generadas por el DBMS; rango suficiente para cualquier dimensión.</td></tr>
+    <tr><td>Clave sustituta de hechos</td><td class="mono">BIGINT IDENTITY</td><td>Sin límite práctico de crecimiento.</td></tr>
+    <tr><td>Clave de tiempo</td><td class="mono">INTEGER (AAAAMMDD)</td><td>Legible y ordenable; se calcula sin consultar la dimensión.</td></tr>
+    <tr><td>Posiciones, vueltas, rondas, indicadores</td><td class="mono">SMALLINT</td><td>Valores pequeños (2 bytes). Los indicadores 0/1 se pueden sumar, a diferencia de <code>BOOLEAN</code>.</td></tr>
+    <tr><td>Puntos</td><td class="mono">NUMERIC(5,2) / (6,2)</td><td>Admiten medios puntos sin errores de redondeo de punto flotante.</td></tr>
+    <tr><td>Tiempos</td><td class="mono">BIGINT / INTEGER (ms)</td><td>Permiten promedios, mínimos y diferencias, lo que no es posible con el texto «1:27.452».</td></tr>
+    <tr><td>Velocidad</td><td class="mono">NUMERIC(7,3)</td><td>Conserva la precisión de la fuente (milésimas de km/h).</td></tr>
+    <tr><td>Coordenadas</td><td class="mono">NUMERIC(9,6)</td><td>Seis decimales (≈ 0,1 m) dentro de los rangos válidos de latitud y longitud.</td></tr>
+    <tr><td>Fechas y horas</td><td class="mono">DATE, TIME, TIMESTAMP</td><td>Tipos nativos que permiten aritmética de fechas (por ejemplo, la edad del piloto).</td></tr>
+    <tr><td>Textos</td><td class="mono">VARCHAR(n), CHAR(3)</td><td>Longitud acotada al dominio; <code>CHAR(3)</code> para el código fijo del piloto.</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s5-3">5.3 Restricciones e integridad referencial</h2>
+<p>La integridad del DataMart se garantiza en el propio DBMS, de modo que ningún error del ETL pueda dejar datos inconsistentes:</p>
+<ul>
+  <li><strong>Claves primarias</strong> en las siete tablas y <strong>claves naturales únicas</strong> (<code>UNIQUE</code>) en las dimensiones; en Carrera también es única la combinación temporada y ronda.</li>
+  <li><strong>Seis claves foráneas</strong> obligatorias desde la tabla de hechos hacia cada dimensión.</li>
+  <li><strong>Reglas de dominio (<code>CHECK</code>):</strong> posiciones mayores que cero, puntos no negativos, edad entre 14 y 70 años, coordenadas válidas, continentes y categorías de estado de una lista cerrada, y código de posición con el patrón <span class="mono">^([0-9]{1,2}|R|D|E|W|F|N)$</span>.</li>
+  <li><strong>Coherencia de los indicadores:</strong> por ejemplo, <span class="mono">es_victoria = 1</span> si y solo si <span class="mono">posicion_final = 1</span>, y <span class="mono">es_abandono = 1</span> si y solo si <span class="mono">codigo_posicion = 'R'</span>. Así, los conteos de los cubos OLAP siempre coinciden con las posiciones.</li>
+  <li><strong>Dimensión Tiempo:</strong> la clave debe coincidir con la fecha (<span class="mono">sk_tiempo = AAAAMMDD</span>) y la década con el año.</li>
+</ul>
+<p>Definición física de la tabla de hechos (el script completo está en el Anexo A):</p>
+<!--EXTRACTO:01_crear_esquema_y_tablas.sql|CREATE TABLE fact_resultado_carrera|);-->
+
+<h2 id="s5-4">5.4 Índices</h2>
+<p>Además de los índices que PostgreSQL crea automáticamente para las claves primarias y las restricciones <code>UNIQUE</code> (usados por el ETL para buscar claves sustitutas), se definieron quince índices orientados a las consultas analíticas:</p>
+<table class="t cebra">
+  <caption>Índices del DataMart</caption>
+  <thead><tr><th style="width:34%">Índice</th><th style="width:32%">Tabla (columnas)</th><th>Propósito</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">ix_fact_resultado_tiempo, _carrera, _circuito, _estado</td><td class="mono">fact (sk_tiempo), (sk_carrera), (sk_circuito), (sk_estado)</td><td>Uniones y filtros por dimensión</td></tr>
+    <tr><td class="mono">ix_fact_resultado_piloto_tiempo</td><td class="mono">fact (sk_piloto, sk_tiempo)</td><td>Series históricas por piloto; también cubre los filtros por piloto</td></tr>
+    <tr><td class="mono">ix_fact_resultado_escuderia_tiempo</td><td class="mono">fact (sk_escuderia, sk_tiempo)</td><td>Series históricas por escudería</td></tr>
+    <tr><td class="mono">ix_fact_resultado_victorias</td><td class="mono">fact (sk_escuderia, sk_piloto) WHERE es_victoria = 1</td><td>Índice parcial para rankings de victorias (≈ 4 % de las filas)</td></tr>
+    <tr><td class="mono">ix_dim_tiempo_anio_mes, ix_dim_tiempo_decada</td><td class="mono">dim_tiempo (anio, mes), (decada)</td><td>Navegación de la jerarquía temporal</td></tr>
+    <tr><td class="mono">ix_dim_carrera_temporada</td><td class="mono">dim_carrera (temporada)</td><td>Filtros por temporada</td></tr>
+    <tr><td class="mono">ix_dim_circuito_pais</td><td class="mono">dim_circuito (continente, pais)</td><td>Jerarquía geográfica</td></tr>
+    <tr><td class="mono">ix_dim_piloto_nacionalidad, ix_dim_piloto_apellido</td><td class="mono">dim_piloto (nacionalidad), (apellido)</td><td>Filtros y búsqueda de pilotos</td></tr>
+    <tr><td class="mono">ix_dim_escuderia_nombre</td><td class="mono">dim_escuderia (nombre_escuderia)</td><td>Filtros por escudería</td></tr>
+    <tr><td class="mono">ix_dim_estado_categoria</td><td class="mono">dim_estado (categoria_estado)</td><td>Agrupación de causas de abandono</td></tr>
+  </tbody>
+</table>
+
+<h2 id="s5-5">5.5 Scripts de implementación</h2>
+<table class="t cebra junta">
+  <caption>Scripts SQL entregados (carpeta <span class="mono">sql/</span>)</caption>
+  <thead><tr><th class="c" style="width:7%">Orden</th><th style="width:36%">Script</th><th>Contenido</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td class="mono">01_crear_esquema_y_tablas.sql</td><td>Esquema <span class="mono">dw_f1</span>, seis dimensiones y tabla de hechos con PK, FK, UNIQUE, CHECK y comentarios (Anexo A)</td></tr>
+    <tr><td class="c">2</td><td class="mono">02_crear_indices.sql</td><td>Quince índices analíticos (Anexo B)</td></tr>
+    <tr><td class="c">3</td><td class="mono">03_datos_iniciales.sql</td><td>Miembros desconocidos (-1) y los 29 585 días de la dimensión Tiempo (Anexo C)</td></tr>
+    <tr><td class="c">4</td><td class="mono">04_consultas_objetivos.sql</td><td>Consultas analíticas de verificación de los objetivos (Anexo D)</td></tr>
+    <tr><td class="c">5</td><td class="mono">05_pruebas_integridad.sql</td><td>Pruebas de integridad; deshace los cambios con ROLLBACK (Anexo E)</td></tr>
+  </tbody>
+</table>
+<pre class="consola">createdb -U postgres -E UTF8 -T template0 dw_formula1
+psql -U postgres -d dw_formula1 -f 01_crear_esquema_y_tablas.sql
+psql -U postgres -d dw_formula1 -f 02_crear_indices.sql
+psql -U postgres -d dw_formula1 -f 03_datos_iniciales.sql
+psql -U postgres -d dw_formula1 -f 05_pruebas_integridad.sql</pre>
+
+<h2 id="s5-6">5.6 Evidencia de la implementación</h2>
+<p>Los scripts se ejecutaron en PostgreSQL 16.15. La siguiente salida, obtenida de los catálogos del sistema, confirma las tablas creadas con sus claves, restricciones e índices, las seis claves foráneas y las filas generadas por el script de datos iniciales:</p>
+<pre class="consola"><!--EVIDENCIA_CATALOGO--></pre>
+<p>Para comprobar la integridad referencial y las reglas de dominio se ejecutó el script de pruebas. Cada operación inválida es rechazada por el DBMS con la restricción correspondiente, y al final solo permanece el registro válido de ejemplo, que se descarta con <code>ROLLBACK</code>:</p>
+<pre class="consola"><!--EVIDENCIA_PRUEBAS--></pre>
+
+<h2 id="s5-7">5.7 Preparación para la carga ETL</h2>
+<p>La estructura física está pensada para la carga con Apache Hop en la segunda presentación:</p>
+<ol>
+  <li><strong>Orden de carga:</strong> (1) <span class="mono">dim_tiempo</span>, ya generada por SQL; (2) dimensiones Estado, Circuito, Piloto, Escudería y Carrera; (3) tabla de hechos.</li>
+  <li><strong>Búsqueda de claves:</strong> cada fila de <span class="mono">results.csv</span> obtiene sus claves sustitutas buscando la clave natural (<span class="mono">id_*_origen</span>) en cada dimensión; si no existe, se asigna -1.</li>
+  <li><strong>Recarga sin duplicados:</strong> <code>UNIQUE (id_resultado_origen)</code> impide duplicar resultados si el proceso se ejecuta más de una vez; el ETL usará inserción o actualización según la clave natural.</li>
+  <li><strong>Transformaciones previstas:</strong> <code>\N</code> → NULL; tiempos «m:ss.mmm» → milisegundos; cálculo de posiciones ganadas, indicadores, puntos normalizados y edad; continente según el país; categoría del estado; sistema de puntos según la temporada; puntos acumulados desde <span class="mono">driver_standings</span> por (raceId, driverId).</li>
+</ol>
+<table class="t cebra junta">
+  <caption>Regla para dim_carrera.sistema_puntos (puntos del 1.º al 10.º)</caption>
+  <thead><tr><th style="width:22%">Temporadas</th><th>Puntos por posición</th><th style="width:34%">Vuelta más rápida</th></tr></thead>
+  <tbody>
+    <tr><td>1950–1959</td><td class="mono">8-6-4-3-2</td><td>+1 punto</td></tr>
+    <tr><td>1960</td><td class="mono">8-6-4-3-2-1</td><td>—</td></tr>
+    <tr><td>1961–1990</td><td class="mono">9-6-4-3-2-1</td><td>—</td></tr>
+    <tr><td>1991–2002</td><td class="mono">10-6-4-3-2-1</td><td>—</td></tr>
+    <tr><td>2003–2009</td><td class="mono">10-8-6-5-4-3-2-1</td><td>—</td></tr>
+    <tr><td>2010–2018</td><td class="mono">25-18-15-12-10-8-6-4-2-1</td><td>—</td></tr>
+    <tr><td>2019–2024</td><td class="mono">25-18-15-12-10-8-6-4-2-1</td><td>+1 punto si termina entre los 10 primeros</td></tr>
+    <tr><td>2025 en adelante</td><td class="mono">25-18-15-12-10-8-6-4-2-1</td><td>—</td></tr>
+  </tbody>
+</table>
+<p style="font-size:8.4pt;color:var(--suave)">El sistema 2010–actual es la base de <span class="mono">puntos_sistema_actual</span>. Hasta 1990 solo contaban los mejores resultados de cada piloto (descartes); por eso los puntos acumulados del campeonato se toman de la fuente y no se recalculan.</p>
+<table class="t cebra junta">
+  <caption>Regla para dim_estado.categoria_estado</caption>
+  <thead><tr><th style="width:30%">Categoría</th><th>Estados de origen (ejemplos)</th></tr></thead>
+  <tbody>
+    <tr><td>Finalizó</td><td class="mono">Finished</td></tr>
+    <tr><td>Finalizó con vueltas de retraso</td><td class="mono">+1 Lap, +2 Laps, …</td></tr>
+    <tr><td>Falla mecánica</td><td class="mono">Engine, Gearbox, Transmission, Hydraulics, Brakes, Suspension, Electrical, Power Unit, …</td></tr>
+    <tr><td>Accidente o colisión</td><td class="mono">Accident, Collision, Collision damage, Spun off, …</td></tr>
+    <tr><td>Descalificación</td><td class="mono">Disqualified, Excluded</td></tr>
+    <tr><td>No largó o no clasificó</td><td class="mono">Did not qualify, Did not prequalify, Withdrew, Not classified, 107% Rule</td></tr>
+    <tr><td>Otro</td><td>Estados restantes (por ejemplo, <span class="mono">Retired</span> sin causa especificada o enfermedad del piloto)</td></tr>
+  </tbody>
+</table>
+
+<!-- ================================================================ CONCLUSIONES -->
+<h1 class="seccion" id="concl">Conclusiones y próximos pasos</h1>
+<ul>
+  <li>Se seleccionó un tema con un problema analítico propio —el rendimiento competitivo en la Fórmula 1— y un conjunto de datos público con setenta y cinco temporadas, varios procesos de negocio y problemas reales de calidad de datos.</li>
+  <li>Se definieron un objetivo general y seis objetivos específicos medibles, cada uno con indicadores y fórmulas basados en las métricas del modelo.</li>
+  <li>De tres DataMarts propuestos se seleccionó el de Rendimiento en Carrera mediante una evaluación ponderada; su grano atómico es el resultado de un piloto con un auto en un Gran Premio.</li>
+  <li>El modelo lógico en estrella cuenta con seis dimensiones conformadas, claves sustitutas, métricas aditivas, semiaditivas y no aditivas, y una matriz de trazabilidad que confirma que cubre los seis objetivos.</li>
+  <li>El modelo físico está implementado y probado en PostgreSQL 16, con integridad referencial, reglas de dominio, índices analíticos y la dimensión Tiempo ya generada.</li>
+</ul>
+<p><strong>Próximos pasos (segunda presentación):</strong> desarrollar los procesos ETL con Apache Hop para extraer los CSV, depurarlos y cargar el DataMart; crear el cubo OLAP con las jerarquías definidas; construir al menos tres reportes que respondan a los objetivos; y diseñar los cuadros de mando interactivos con los KPI de la sección 2.3.</p>
+
+<h1 class="seccion" id="refs">Referencias</h1>
+<div class="referencias">
+  <p>Ergast Developer API. (s. f.). <em>Ergast Motor Racing Developer API: documentación y base de datos histórica de la Fórmula 1</em>. http://ergast.com/mrd/</p>
+  <p>Kimball, R. y Ross, M. (2013). <em>The Data Warehouse Toolkit: The Definitive Guide to Dimensional Modeling</em> (3.ª ed.). Wiley.</p>
+  <p>Rao, R. (2024). <em>Formula 1 World Championship (1950 – 2024)</em> [Conjunto de datos]. Kaggle. https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020</p>
+  <p>The PostgreSQL Global Development Group. (2024). <em>PostgreSQL 16 Documentation</em>. https://www.postgresql.org/docs/16/</p>
+</div>
+
+<!-- ================================================================ ANEXOS -->
+<h1 class="seccion" id="anexos">Anexos: scripts SQL</h1>
+<div class="anexo">
+  <h2>Anexo A · 01_crear_esquema_y_tablas.sql</h2>
+  <!--SQL:01_crear_esquema_y_tablas.sql-->
+  <h2>Anexo B · 02_crear_indices.sql</h2>
+  <!--SQL:02_crear_indices.sql-->
+  <h2>Anexo C · 03_datos_iniciales.sql</h2>
+  <!--SQL:03_datos_iniciales.sql-->
+  <h2>Anexo D · 04_consultas_objetivos.sql</h2>
+  <!--SQL:04_consultas_objetivos.sql-->
+  <h2>Anexo E · 05_pruebas_integridad.sql</h2>
+  <!--SQL:05_pruebas_integridad.sql-->
+</div>
+
+</body>
+</html>
