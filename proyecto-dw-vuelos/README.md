@@ -6,7 +6,7 @@ de Kaggle (Departamento de Transporte de EE. UU.).
 
 ## Primera presentación (puntos 1 a 5)
 
-- [`docs/Primera_Presentacion_DW_Vuelos.pdf`](docs/Primera_Presentacion_DW_Vuelos.pdf): entrega en PDF. Texto de 3 páginas en Arial 12, más el diagrama del modelo físico (página 4) y el script SQL como anexo.
+- [`docs/Primera_Presentacion_DW_Vuelos.pdf`](docs/Primera_Presentacion_DW_Vuelos.pdf): entrega en PDF, en Arial 12, con los diagramas de los modelos conceptual (Figura 1), lógico (Figura 2) y físico (Figura 3) y el script SQL como anexo.
 - [`docs/Primera_Presentacion_DW_Vuelos.docx`](docs/Primera_Presentacion_DW_Vuelos.docx): el mismo documento en Word, para completar el encabezado y exportar a PDF.
 
 El documento sigue los puntos 1 a 5 de la consigna: tema y dataset, objetivos,
@@ -51,7 +51,7 @@ proyecto-dw-vuelos/
     ├── Primera_Presentacion_DW_Vuelos.docx
     └── fuente/
         ├── construir_docx.py    Genera el .docx y el .pdf
-        ├── diagrama_fisico.py   Dibuja el diagrama del modelo físico
+        ├── diagramas.py         Dibuja los diagramas conceptual, lógico y físico
         ├── capturar_svg.js      Convierte el diagrama a PNG (Chromium)
         └── modelo_fisico.json   Tablas, columnas y tipos tomados del catálogo de PostgreSQL
 ```
@@ -67,4 +67,4 @@ NODE_PATH=$(npm root -g) python3 construir_docx.py
 ```
 
 Requiere Python 3 con `python-docx`, LibreOffice (`soffice`) para exportar a PDF y
-Node.js con `playwright` (Chromium) para dibujar el diagrama.
+Node.js con `playwright` (Chromium) para dibujar los diagramas.
