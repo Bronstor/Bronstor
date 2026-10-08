@@ -1,21 +1,27 @@
-"""Construye la primera presentación (máximo 3 páginas, Arial 12) en Word y PDF.
+"""Construye la primera presentación en Word y PDF (texto en Arial 12).
 
 Uso (desde esta carpeta):
-    python3 construir_docx.py
+    NODE_PATH=$(npm root -g) python3 construir_docx.py
 
-Requiere python-docx y LibreOffice (soffice) para exportar a PDF. Escribe
+Requiere python-docx, LibreOffice (soffice) para exportar a PDF y Node.js con
+Playwright para dibujar el diagrama del modelo físico. Escribe
 ../Primera_Presentacion_DW_Vuelos.docx y ../Primera_Presentacion_DW_Vuelos.pdf.
 """
+import re
 import subprocess
 from pathlib import Path
 
 from docx import Document
+from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
+import diagrama_fisico
+
 BASE = Path(__file__).resolve().parent
+SQL = BASE.parent.parent / "sql"
 SALIDA_DOCX = BASE.parent / "Primera_Presentacion_DW_Vuelos.docx"
 
 doc = Document()
@@ -90,6 +96,38 @@ def tabla(encabezados, filas, anchos_cm):
         cs.set(qn("w:val"), "true")
         fila._tr.get_or_add_trPr().append(cs)
     doc.add_paragraph().paragraph_format.space_after = Pt(0)
+
+
+def nueva_seccion(horizontal):
+    s = doc.add_section(WD_SECTION.NEW_PAGE)
+    s.orientation = WD_ORIENT.LANDSCAPE if horizontal else WD_ORIENT.PORTRAIT
+    s.page_width, s.page_height = (Cm(29.7), Cm(21)) if horizontal else (Cm(21), Cm(29.7))
+    s.top_margin = s.bottom_margin = Cm(2 if horizontal else 2.5)
+    s.left_margin = s.right_margin = Cm(1.5 if horizontal else 2.5)
+
+
+def script_sin_comentarios(archivo):
+    """Líneas del script sin comentarios ni COMMENT ON, con espacios simplificados."""
+    lineas = []
+    for linea in (SQL / archivo).read_text(encoding="utf-8").splitlines():
+        if linea.lstrip().startswith(("--", "COMMENT ON")):
+            continue
+        if not linea.strip():
+            if lineas and lineas[-1].strip():
+                lineas.append("")
+            continue
+        sangria = len(linea) - len(linea.lstrip(" "))
+        lineas.append(" " * sangria + re.sub(r"\s{2,}", " ", linea.strip()))
+    return lineas
+
+
+def codigo(lineas):
+    for linea in lineas:
+        parrafo = doc.add_paragraph()
+        parrafo.paragraph_format.space_after = Pt(0)
+        sangria = min(len(linea) - len(linea.lstrip(" ")), 8)  # las continuaciones no se alinean en Arial
+        parrafo.paragraph_format.left_indent = Cm(0.25 * sangria)
+        parrafo.add_run(linea.strip())
 
 
 # ---------------------------------------------------------------------------
@@ -168,6 +206,21 @@ vinetas([
     "**Restricciones e integridad referencial:** PK en todas las tablas, UNIQUE en los códigos IATA y en la clave natural del vuelo, seis FK obligatorias (dos hacia dim_aeropuerto) y reglas CHECK (distancia > 0, un vuelo cancelado debe tener motivo, es_retrasado = 1 solo si llegó con 15 minutos o más de retraso). Se probó que el DBMS rechaza aerolíneas inexistentes, vuelos duplicados y el borrado de aeropuertos con vuelos.",
     "**Índices y orientación al análisis y al ETL:** índices en cada FK, en (aerolínea, fecha), en la ruta (origen, destino) y un índice parcial de vuelos cancelados; la clave natural única permite recargar sin duplicar y el miembro «Desconocido» (-1) evita perder vuelos con códigos no encontrados.",
 ])
+p("La Figura 1 muestra el modelo físico implementado, obtenido del catálogo de PostgreSQL: cada tabla con sus columnas, tipos de datos, claves y columnas obligatorias. El script de creación completo está en el Anexo.")
+
+# Figura del modelo físico (página horizontal)
+nueva_seccion(horizontal=True)
+figura = doc.add_paragraph()
+figura.alignment = WD_ALIGN_PARAGRAPH.CENTER
+figura.add_run().add_picture(str(diagrama_fisico.exportar_png(BASE / "build")), width=Cm(26.5))
+p("**Figura 1.** Modelo físico del DataMart Puntualidad de Vuelos en PostgreSQL 16 (esquema dw_vuelos).", centrado=True)
+p("PK = clave primaria; FK = clave foránea; UK = forma parte de una restricción UNIQUE; NN = NOT NULL; IDENTITY = valor generado por el DBMS; ‖──< = relación 1:N. dim_aeropuerto se relaciona dos veces con fact_vuelo (origen y destino).", centrado=True)
+
+# Anexo con el script del modelo físico
+nueva_seccion(horizontal=False)
+titulo("Anexo. Script del modelo físico (PostgreSQL 16)")
+p("Scripts 01_crear_esquema_y_tablas.sql y 02_crear_indices.sql, sin los comentarios:")
+codigo(script_sin_comentarios("01_crear_esquema_y_tablas.sql") + [""] + script_sin_comentarios("02_crear_indices.sql"))
 
 doc.save(SALIDA_DOCX)
 subprocess.run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", str(SALIDA_DOCX.parent), str(SALIDA_DOCX)],

@@ -6,7 +6,7 @@ de Kaggle (Departamento de Transporte de EE. UU.).
 
 ## Primera presentación (puntos 1 a 5)
 
-- [`docs/Primera_Presentacion_DW_Vuelos.pdf`](docs/Primera_Presentacion_DW_Vuelos.pdf): entrega en PDF (3 páginas, Arial 12).
+- [`docs/Primera_Presentacion_DW_Vuelos.pdf`](docs/Primera_Presentacion_DW_Vuelos.pdf): entrega en PDF. Texto de 3 páginas en Arial 12, más el diagrama del modelo físico (página 4) y el script SQL como anexo.
 - [`docs/Primera_Presentacion_DW_Vuelos.docx`](docs/Primera_Presentacion_DW_Vuelos.docx): el mismo documento en Word, para completar el encabezado y exportar a PDF.
 
 El documento sigue los puntos 1 a 5 de la consigna: tema y dataset, objetivos,
@@ -50,7 +50,10 @@ proyecto-dw-vuelos/
     ├── Primera_Presentacion_DW_Vuelos.pdf
     ├── Primera_Presentacion_DW_Vuelos.docx
     └── fuente/
-        └── construir_docx.py    Genera el .docx y el .pdf
+        ├── construir_docx.py    Genera el .docx y el .pdf
+        ├── diagrama_fisico.py   Dibuja el diagrama del modelo físico
+        ├── capturar_svg.js      Convierte el diagrama a PNG (Chromium)
+        └── modelo_fisico.json   Tablas, columnas y tipos tomados del catálogo de PostgreSQL
 ```
 
 ## Regenerar el documento
@@ -60,7 +63,8 @@ Lo más simple para completar el encabezado (universidad, integrantes) es editar
 
 ```bash
 cd docs/fuente
-python3 construir_docx.py
+NODE_PATH=$(npm root -g) python3 construir_docx.py
 ```
 
-Requiere Python 3 con `python-docx` y LibreOffice (`soffice`) para exportar a PDF.
+Requiere Python 3 con `python-docx`, LibreOffice (`soffice`) para exportar a PDF y
+Node.js con `playwright` (Chromium) para dibujar el diagrama.
