@@ -5,13 +5,16 @@ dataset público [Formula 1 World Championship (1950 – 2024)](https://www.kagg
 
 ## Primera presentación (puntos 1 a 5)
 
-El informe en PDF está en [`docs/Primera_Presentacion_DW_Formula1.pdf`](docs/Primera_Presentacion_DW_Formula1.pdf) y contiene:
+El informe en PDF está en [`docs/Primera_Presentacion_DW_Formula1.pdf`](docs/Primera_Presentacion_DW_Formula1.pdf).
+Sigue la consigna punto por punto (cada viñeta de la consigna tiene su propia
+sección, y la introducción incluye una tabla de correspondencia con la página donde
+se cumple cada requisito):
 
-1. **Tema del proyecto**: contexto de los datos, necesidad de análisis y observaciones de calidad.
-2. **Objetivos del Data Warehouse**: objetivo general, seis objetivos específicos y sus indicadores (KPI).
-3. **Modelado conceptual**: tres DataMarts propuestos, matriz de bus, selección del DataMart *Rendimiento en Carrera* y granularidad.
-4. **Modelado lógico**: esquema en estrella, diccionario de datos, claves, relaciones y clasificación de métricas.
-5. **Modelado físico**: implementación en PostgreSQL 16 con restricciones, índices y evidencia de ejecución.
+1. **Tema del Proyecto**: tema y dataset de Kaggle; suficiencia de los datos para el análisis, el modelado dimensional y el Data Warehouse; contexto y necesidad de análisis; justificación frente a temáticas comunes.
+2. **Objetivos del Data Warehouse**: objetivo general; seis objetivos específicos medibles con sus indicadores, consultas y reportes; elementos del diseño (hechos, dimensiones, métricas, granularidad, reportes y cuadros de mando) que se derivan de cada objetivo.
+3. **Modelado Conceptual**: tres DataMarts propuestos y matriz de bus; selección del de mayor valor (*Rendimiento en Carrera*); modelo conceptual con procesos de negocio, hecho y dimensiones; granularidad de cada hecho.
+4. **Modelado Lógico**: tablas de hechos y dimensiones con todos sus atributos; claves primarias, foráneas y sustitutas y relaciones; métricas clasificadas en aditivas, semiaditivas y no aditivas; verificación frente a los objetivos.
+5. **Modelado Físico**: implementación en PostgreSQL 16 con tipos de datos, restricciones, claves e índices; relaciones e integridad referencial probadas; estructura orientada a las consultas analíticas y a la carga ETL.
 
 ## Modelo
 

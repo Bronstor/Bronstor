@@ -39,7 +39,7 @@ TABLAS = {
             ("nombre_gran_premio", "VARCHAR(100)", "", False, "Nombre oficial del Gran Premio", "races.name"),
             ("hora_inicio_utc", "TIME", "", True, "Hora de largada en UTC", "races.time (\\N → NULL)"),
             ("tiene_sprint", "BOOLEAN", "", False, "Indica si el fin de semana tuvo carrera sprint", "Existe en sprint_results"),
-            ("sistema_puntos", "VARCHAR(60)", "", False, "Sistema de puntuación vigente en la temporada", "Regla por año (sección 5.7)"),
+            ("sistema_puntos", "VARCHAR(60)", "", False, "Sistema de puntuación vigente en la temporada", "Regla por año (sección 5.3)"),
             ("url_referencia", "VARCHAR(255)", "", True, "Enlace a la página de Wikipedia de la carrera", "races.url"),
         ],
     },
@@ -95,7 +95,7 @@ TABLAS = {
             ("sk_estado", "INTEGER", "PK", False, "Clave sustituta (IDENTITY); -1 = desconocido", "Generada por el DBMS"),
             ("id_estado_origen", "INTEGER", "NK", False, "Identificador del estado en la fuente", "status.statusId"),
             ("descripcion_estado", "VARCHAR(60)", "", False, "Estado original (Finished, +1 Lap, Engine, ...)", "status.status"),
-            ("categoria_estado", "VARCHAR(40)", "", False, "Categoría de análisis del estado", "Regla de agrupación (sección 5.7)"),
+            ("categoria_estado", "VARCHAR(40)", "", False, "Categoría de análisis del estado", "Regla de agrupación (sección 5.3)"),
         ],
     },
     "fact_resultado_carrera": {

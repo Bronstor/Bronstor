@@ -241,11 +241,16 @@ def paginas_de_titulos():
     plantilla = (BASE / "informe.html").read_text(encoding="utf-8")
     titulos = re.findall(r'<h[12][^>]*\bid="([\w-]+)"[^>]*>(.*?)</h[12]>', plantilla, re.S)
     lector = PdfReader(str(SALIDA_PDF))
-    textos = [re.sub(r"\s+", " ", (pg.extract_text() or "")) for pg in lector.pages]
+    # La extracción de texto puede perder signos de puntuación (p. ej. los dos
+    # puntos de un título), así que se comparan solo letras, dígitos y espacios.
+    def normalizar(t):
+        return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", "", t)).strip()
+
+    textos = [normalizar(pg.extract_text() or "") for pg in lector.pages]
     inicio = next(i for i, t in enumerate(textos) if "Índice" in t) + 1
     resultado = {}
     for ident, titulo in titulos:
-        limpio = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", titulo))).strip()
+        limpio = normalizar(html.unescape(re.sub(r"<[^>]+>", "", titulo)))
         for n in range(inicio, len(textos)):
             if limpio in textos[n]:
                 resultado[ident] = n + 1
