@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Práctica de Métodos CSS</title>
+
+  <!-- 1. VINCULACIÓN EXTERNA: Agrega aquí la etiqueta <link> hacia 'styles.css' -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- 2. CSS INCRUSTADO: Escribe la etiqueta <style> según las instrucciones -->
+  <style>
+    .texto-incrustado {
+      color: blue;
+      font-size: 20px;
+    }
+  </style>
+
+</head>
+<body>
+
+  <h1>Formas de Aplicar CSS en HTML</h1>
+
+  <section id="seccion-en-linea">
+    <h2>1. CSS En Línea (Inline)</h2>
+    <!-- Modifica este párrafo aplicando CSS en línea -->
+    <p style="color: green; font-size: 18px;">Este párrafo debe ser personalizado directamente mediante el atributo style.</p>
+  </section>
+
+  <section id="seccion-incrustado">
+    <h2>2. CSS Incrustado (Internal)</h2>
+    <!-- Aplica estilos a este párrafo usando un selector en la etiqueta <style> del <head> -->
+    <p class="texto-incrustado">Este párrafo debe ser personalizado desde la etiqueta style en el head.</p>
+  </section>
+
+  <section id="seccion-externo">
+    <h2>3. CSS Externo (External)</h2>
+    <!-- Aplica estilos a este párrafo desde el archivo styles.css -->
+    <p class="texto-externo">Este párrafo debe ser personalizado desde el archivo estilos externos.</p>
+  </section>
+
+</body>
+</html>

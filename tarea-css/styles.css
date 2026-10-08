@@ -1,0 +1,5 @@
+/* 3. CSS EXTERNO: estilos para el párrafo de la sección #seccion-externo */
+.texto-externo {
+  color: purple;
+  font-size: 22px;
+}
