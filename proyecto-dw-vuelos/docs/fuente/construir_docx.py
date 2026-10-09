@@ -172,6 +172,25 @@ tabla(["Tabla", "Atributos"], [
     ["dim_aeropuerto", "PK sk_aeropuerto; codigo_iata, nombre_aeropuerto, ciudad, estado, region, pais, latitud, longitud"],
     ["dim_motivo_cancelacion", "PK sk_motivo_cancelacion; codigo_motivo (N, A, B, C, D), descripcion"],
 ], [5.3, 10.7])
+p("**Estructura del dataset y su uso en el DataMart:** cada columna de los archivos CSV se carga en una dimensión, una métrica o un indicador de la tabla de hechos:")
+tabla(["Columna del dataset", "Significado", "En el DataMart (uso)"], [
+    ["YEAR\nMONTH\nDAY\nDAY_OF_WEEK", "Fecha del vuelo y día de la semana", "dim_fecha\n(dimensión)"],
+    ["AIRLINE", "Código de la aerolínea", "dim_aerolinea\n(dimensión)"],
+    ["ORIGIN_AIRPORT\nDESTINATION_AIRPORT", "Aeropuertos de origen y destino", "dim_aeropuerto, en dos roles\n(dimensión)"],
+    ["SCHEDULED_DEPARTURE", "Hora programada de salida (hhmm)", "salida_programada (degenerada)\ndim_hora (dimensión)"],
+    ["CANCELLATION_REASON", "Motivo: A, B, C o D", "dim_motivo_cancelacion\n(dimensión)"],
+    ["FLIGHT_NUMBER\nTAIL_NUMBER", "Número de vuelo y matrícula del avión", "numero_vuelo\nmatricula_avion\n(dimensiones degeneradas)"],
+    ["DEPARTURE_DELAY", "Minutos de retraso en la salida", "retraso_salida_min\n(métrica aditiva)"],
+    ["ARRIVAL_DELAY", "Minutos de retraso en la llegada", "retraso_llegada_min (métrica aditiva)\nes_retrasado, es_puntual (indicadores)"],
+    ["TAXI_OUT\nTAXI_IN", "Minutos de rodaje antes del despegue y después del aterrizaje", "taxi_salida_min\ntaxi_llegada_min\n(métricas aditivas)"],
+    ["SCHEDULED_TIME\nELAPSED_TIME\nAIR_TIME", "Duración programada, real y en el aire", "tiempo_programado_min\ntiempo_real_min\ntiempo_aire_min\n(métricas aditivas)"],
+    ["DISTANCE", "Distancia en millas", "distancia_millas\n(métrica aditiva)"],
+    ["AIRLINE_DELAY\nWEATHER_DELAY\nAIR_SYSTEM_DELAY\nSECURITY_DELAY\nLATE_AIRCRAFT_DELAY", "Minutos de retraso por causa: aerolínea, clima, sistema aéreo, seguridad y avión tardío", "retraso_aerolinea_min\nretraso_clima_min\nretraso_sistema_aereo_min\nretraso_seguridad_min\nretraso_avion_tardio_min\n(métricas aditivas)"],
+    ["CANCELLED\nDIVERTED", "1 si el vuelo fue cancelado o desviado", "es_cancelado\nes_desviado\n(indicadores 0/1)"],
+    ["DEPARTURE_TIME\nWHEELS_OFF\nWHEELS_ON\nSCHEDULED_ARRIVAL\nARRIVAL_TIME", "Horas reales y programadas de cada etapa del vuelo", "No se cargan: lo necesario ya está en los retrasos y los tiempos"],
+    ["airlines.csv: IATA_CODE, AIRLINE", "Código y nombre de la aerolínea", "dim_aerolinea\n(dimensión)"],
+    ["airports.csv: IATA_CODE, AIRPORT, CITY, STATE, COUNTRY, LATITUDE, LONGITUDE", "Datos de cada aeropuerto", "dim_aeropuerto; la región se deriva del estado\n(dimensión)"],
+], [6.2, 3.8, 6.0])
 vinetas([
     "**Claves:** las claves sustitutas (sk_*) son enteros generados por el DBMS; los códigos IATA del dataset son claves naturales únicas que el ETL usa para buscar la clave sustituta. dim_aeropuerto se relaciona dos veces con los hechos (origen y destino).",
     "**Métricas aditivas:** minutos de retraso (total y por causa), tiempos, distancia e indicadores 0/1 (su suma cuenta vuelos cancelados, retrasados o puntuales).",
