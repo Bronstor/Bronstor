@@ -7,7 +7,7 @@ de Kaggle (Departamento de Transporte de EE. UU.).
 ## Primera presentación (puntos 1 a 5)
 
 - [`docs/Primera_Presentacion_DW_Vuelos.pdf`](docs/Primera_Presentacion_DW_Vuelos.pdf): entrega en PDF, en Arial 12, con los diagramas de los modelos conceptual (Figura 1), lógico (Figura 2) y físico (Figura 3). Los scripts SQL se entregan aparte, en `sql/`.
-- [`docs/Primera_Presentacion_DW_Vuelos.docx`](docs/Primera_Presentacion_DW_Vuelos.docx): el mismo documento en Word, para completar el encabezado y exportar a PDF.
+- [`docs/Primera_Presentacion_DW_Vuelos.docx`](docs/Primera_Presentacion_DW_Vuelos.docx): el mismo documento en Word, con la carátula de la Universidad NUR.
 - [`docs/Guia_Exposicion_DW_Vuelos.pdf`](docs/Guia_Exposicion_DW_Vuelos.pdf): guía para exponer el documento (qué decir en cada punto y posibles preguntas).
 
 El documento sigue los puntos 1 a 5 de la consigna: tema y dataset, objetivos,
@@ -56,13 +56,14 @@ proyecto-dw-vuelos/
         ├── construir_guia.py    Genera la guía de exposición
         ├── diagramas.py         Dibuja los diagramas conceptual, lógico y físico
         ├── capturar_svg.js      Convierte el diagrama a PNG (Chromium)
+        ├── logo_nur.png         Logo de la carátula
         └── modelo_fisico.json   Tablas, columnas y tipos tomados del catálogo de PostgreSQL
 ```
 
 ## Regenerar el documento
 
-Lo más simple para completar el encabezado (universidad, integrantes) es editar el
-`.docx` en Word y exportarlo a PDF. Para regenerarlo desde la fuente:
+Lo más simple para hacer cambios es editar el `.docx` en Word y exportarlo a PDF.
+Para regenerarlo desde la fuente:
 
 ```bash
 cd docs/fuente

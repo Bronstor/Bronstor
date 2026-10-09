@@ -113,11 +113,54 @@ def nueva_seccion(horizontal):
 
 
 # ---------------------------------------------------------------------------
-# Encabezado
+# Carátula (Times New Roman, como el modelo de la universidad)
 # ---------------------------------------------------------------------------
-p("**[Universidad] – Base de Datos III – Proyecto: Implementación de un Data Warehouse**", centrado=True)
-p("**Primera Presentación (puntos 1 a 5): Data Warehouse de puntualidad de vuelos en EE. UU. (2015)**", centrado=True)
-p("Integrantes: Jhonatan Moisés Villca, [Integrante 2], [Integrante 3] – Docente: Rodnie Montaño Aguilera", centrado=True)
+def _times(run, negrita=False):
+    run.bold = negrita
+    run.font.name = "Times New Roman"
+    run.font.size = Pt(12)
+    rfonts = run._element.get_or_add_rPr().get_or_add_rFonts()
+    for atributo in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
+        rfonts.set(qn(atributo), "Times New Roman")
+
+
+def caratula():
+    logo = doc.add_paragraph()
+    logo.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    logo.paragraph_format.space_before = Pt(18)
+    logo.paragraph_format.space_after = Pt(60)
+    logo.add_run().add_picture(str(BASE / "logo_nur.png"), width=Cm(14.5))
+
+    datos = [
+        ("Materia / Asignatura:", ["Base de Datos III"]),
+        ("Docente / Profesor:", ["Rodnie Montaño Aguilera"]),
+        ("Estudiante / Integrantes:", ["• Jhonatan Moisés Villca", "• Pedro Visir Valda"]),
+        ("Proyecto:", ["Análisis de la puntualidad, los retrasos y las cancelaciones de los vuelos comerciales nacionales de Estados Unidos en 2015"]),
+    ]
+    t = doc.add_table(rows=len(datos), cols=2)
+    t.autofit = False
+    for fila, (etiqueta, valores) in zip(t.rows, datos):
+        celda_e, celda_v = fila.cells
+        celda_e.width, celda_v.width = Cm(5.6), Cm(10.4)
+        par = celda_e.paragraphs[0]
+        par.paragraph_format.space_after = Pt(18)
+        _times(par.add_run(etiqueta), negrita=True)
+        for i, valor in enumerate(valores):
+            par = celda_v.paragraphs[0] if i == 0 else celda_v.add_paragraph()
+            par.paragraph_format.line_spacing = 2.0
+            par.paragraph_format.space_after = Pt(18 if i == len(valores) - 1 else 0)
+            if valor.startswith("• "):
+                par.paragraph_format.left_indent = Cm(1.2)
+                par.paragraph_format.first_line_indent = Cm(-0.6)
+                valor = "•\t" + valor[2:]
+                par.paragraph_format.tab_stops.add_tab_stop(Cm(1.2))
+            _times(par.add_run(valor))
+    for j, ancho in enumerate((Cm(5.6), Cm(10.4))):
+        t.columns[j].width = ancho
+    doc.add_page_break()
+
+
+caratula()
 
 # ---------------------------------------------------------------------------
 # 1. Tema
