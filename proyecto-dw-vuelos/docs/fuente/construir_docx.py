@@ -24,84 +24,113 @@ SALIDA_DOCX = BASE.parent / "Primera_Presentacion_DW_Vuelos.docx"
 
 doc = Document()
 
-# Todo en Arial 12, negro, interlineado sencillo
-for nombre in ("Normal", "List Bullet"):
-    estilo = doc.styles[nombre]
-    estilo.font.name = "Arial"
-    estilo.font.size = Pt(12)
-    estilo.font.color.rgb = RGBColor(0, 0, 0)
-    rfonts = estilo.element.get_or_add_rPr().get_or_add_rFonts()
-    for atributo in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
-        rfonts.set(qn(atributo), "Arial")
-    estilo.paragraph_format.space_before = Pt(0)
-    estilo.paragraph_format.space_after = Pt(3)
-    estilo.paragraph_format.line_spacing = 1.0
+# Cuerpo en Arial 12, negro, interlineado 1,15
+estilo = doc.styles["Normal"]
+estilo.font.name = "Arial"
+estilo.font.size = Pt(12)
+estilo.font.color.rgb = RGBColor(0, 0, 0)
+rfonts = estilo.element.get_or_add_rPr().get_or_add_rFonts()
+for atributo in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
+    rfonts.set(qn(atributo), "Arial")
+estilo.paragraph_format.space_before = Pt(0)
+estilo.paragraph_format.space_after = Pt(6)
+estilo.paragraph_format.line_spacing = 1.15
 
 seccion = doc.sections[0]
 seccion.page_width, seccion.page_height = Cm(21), Cm(29.7)
 seccion.left_margin = seccion.right_margin = Cm(2.5)
 seccion.top_margin = seccion.bottom_margin = Cm(2.5)
 
-
-def _runs(parrafo, texto):
-    """Agrega texto al párrafo; lo encerrado entre ** va en negrita."""
-    for i, trozo in enumerate(texto.split("**")):
-        if trozo:
-            parrafo.add_run(trozo).bold = bool(i % 2)
+numero_tabla = 0
+numero_figura = 0
 
 
-def p(texto, centrado=False):
-    parrafo = doc.add_paragraph()
-    parrafo.alignment = WD_ALIGN_PARAGRAPH.CENTER if centrado else WD_ALIGN_PARAGRAPH.JUSTIFY
-    _runs(parrafo, texto)
-    return parrafo
+# ---------------------------------------------------------------------------
+# Ayudantes
+# ---------------------------------------------------------------------------
+def parrafo(texto, centrado=False):
+    par = doc.add_paragraph()
+    par.alignment = WD_ALIGN_PARAGRAPH.CENTER if centrado else WD_ALIGN_PARAGRAPH.JUSTIFY
+    par.add_run(texto)
+    return par
 
 
-def titulo(texto):
-    parrafo = doc.add_paragraph()
-    parrafo.paragraph_format.space_before = Pt(6)
-    parrafo.paragraph_format.keep_with_next = True
-    parrafo.add_run(texto).bold = True
+def titulo1(texto):
+    par = doc.add_paragraph()
+    par.paragraph_format.space_before = Pt(12)
+    par.paragraph_format.space_after = Pt(6)
+    par.paragraph_format.keep_with_next = True
+    par.add_run(texto.upper()).bold = True
 
 
-def vinetas(elementos):
-    for e in elementos:
-        parrafo = doc.add_paragraph(style="List Bullet")
-        parrafo.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        parrafo.paragraph_format.space_after = Pt(1)
-        _runs(parrafo, e)
+def titulo2(texto):
+    par = doc.add_paragraph()
+    par.paragraph_format.space_before = Pt(6)
+    par.paragraph_format.keep_with_next = True
+    par.add_run(texto).bold = True
 
 
-def tabla(encabezados, filas, anchos_cm):
+def _sombrear(celda, color="D9D9D9"):
+    shd = OxmlElement("w:shd")
+    shd.set(qn("w:val"), "clear")
+    shd.set(qn("w:color"), "auto")
+    shd.set(qn("w:fill"), color)
+    celda._tc.get_or_add_tcPr().append(shd)
+
+
+def tabla(titulo_tabla, encabezados, filas, anchos_cm):
+    """Tabla numerada: título arriba, encabezado sombreado y repetido en cada página."""
+    global numero_tabla
+    numero_tabla += 1
+    cab = doc.add_paragraph()
+    cab.paragraph_format.keep_with_next = True
+    cab.paragraph_format.space_after = Pt(3)
+    cab.add_run(f"Tabla {numero_tabla}. ").bold = True
+    cab.add_run(titulo_tabla)
+
     t = doc.add_table(rows=1, cols=len(encabezados))
     t.style = "Table Grid"
     t.autofit = False
     for fila_datos in [encabezados] + filas:
-        celdas = t.rows[0].cells if fila_datos is encabezados else t.add_row().cells
+        es_cab = fila_datos is encabezados
+        celdas = t.rows[0].cells if es_cab else t.add_row().cells
         for j, valor in enumerate(fila_datos):
             par = celdas[j].paragraphs[0]
             par.paragraph_format.space_after = Pt(0)
-            if fila_datos is encabezados:
-                par.add_run(valor).bold = True
-            else:
-                _runs(par, valor)
+            par.paragraph_format.line_spacing = 1.0
+            par.add_run(valor).bold = es_cab
+            if es_cab:
+                _sombrear(celdas[j])
     for j, columna in enumerate(t.columns):
         columna.width = Cm(anchos_cm[j])
         for celda in columna.cells:
             celda.width = Cm(anchos_cm[j])
-    for fila in t.rows:
+    for i, fila in enumerate(t.rows):
+        trpr = fila._tr.get_or_add_trPr()
         cs = OxmlElement("w:cantSplit")
         cs.set(qn("w:val"), "true")
-        fila._tr.get_or_add_trPr().append(cs)
+        trpr.append(cs)
+        if i == 0:
+            th = OxmlElement("w:tblHeader")
+            th.set(qn("w:val"), "true")
+            trpr.append(th)
     doc.add_paragraph().paragraph_format.space_after = Pt(0)
 
 
-def figura(ruta_png, ancho, leyenda):
+def figura(ruta_png, ancho, titulo_figura, nota=None):
+    """Figura numerada con su título debajo."""
+    global numero_figura
+    numero_figura += 1
     imagen = doc.add_paragraph()
     imagen.alignment = WD_ALIGN_PARAGRAPH.CENTER
     imagen.paragraph_format.keep_with_next = True
     imagen.add_run().add_picture(str(ruta_png), width=ancho)
-    p(leyenda, centrado=True)
+    pie = doc.add_paragraph()
+    pie.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    pie.add_run(f"Figura {numero_figura}. ").bold = True
+    pie.add_run(titulo_figura)
+    if nota:
+        parrafo(nota, centrado=True)
 
 
 def nueva_seccion(horizontal):
@@ -119,9 +148,9 @@ def _times(run, negrita=False):
     run.bold = negrita
     run.font.name = "Times New Roman"
     run.font.size = Pt(12)
-    rfonts = run._element.get_or_add_rPr().get_or_add_rFonts()
+    rf = run._element.get_or_add_rPr().get_or_add_rFonts()
     for atributo in ("w:ascii", "w:hAnsi", "w:eastAsia", "w:cs"):
-        rfonts.set(qn(atributo), "Times New Roman")
+        rf.set(qn(atributo), "Times New Roman")
 
 
 def caratula():
@@ -152,8 +181,8 @@ def caratula():
             if valor.startswith("• "):
                 par.paragraph_format.left_indent = Cm(1.2)
                 par.paragraph_format.first_line_indent = Cm(-0.6)
-                valor = "•\t" + valor[2:]
                 par.paragraph_format.tab_stops.add_tab_stop(Cm(1.2))
+                valor = "•\t" + valor[2:]
             _times(par.add_run(valor))
     for j, ancho in enumerate((Cm(5.6), Cm(10.4))):
         t.columns[j].width = ancho
@@ -163,106 +192,174 @@ def caratula():
 caratula()
 
 # ---------------------------------------------------------------------------
-# 1. Tema
+# 1. Tema del proyecto
 # ---------------------------------------------------------------------------
-titulo("1. Tema del Proyecto")
-p("**Tema:** análisis de la puntualidad, los retrasos y las cancelaciones de los vuelos comerciales nacionales de Estados Unidos en 2015. **Conjunto de datos:** «2015 Flight Delays and Cancellations» de Kaggle, publicado por el Departamento de Transporte de EE. UU. con datos de la Oficina de Estadísticas de Transporte (BTS). Tiene tres archivos CSV: flights.csv (≈ 5,8 millones de vuelos con fecha, aerolínea, número de vuelo, aeropuertos de origen y destino, horarios programados y reales, retrasos, tiempos de rodaje y de vuelo, distancia, cancelación, desvío y minutos de retraso por causa), airlines.csv (14 aerolíneas) y airports.csv (322 aeropuertos con ciudad, estado y coordenadas).")
-p("**Enlace del conjunto de datos:** https://www.kaggle.com/datasets/usdot/flight-delays")
-p("**Suficiencia de los datos:** cada vuelo es un evento medible con métricas numéricas (minutos de retraso, tiempos, distancia) y con descriptores que forman dimensiones con jerarquías: año → trimestre → mes → fecha, franja horaria → hora y región → estado → ciudad → aeropuerto. El volumen y los problemas de calidad (horas en formato hhmm, valores vacíos en vuelos cancelados o desviados, aeropuertos con códigos numéricos en lugar del código IATA en octubre) justifican un Data Warehouse y un proceso ETL.")
-p("**Contexto y necesidad de análisis:** según la BTS, un vuelo está retrasado si llega 15 minutos o más después de lo programado, y las aerolíneas informan la causa (la propia aerolínea, el clima, el sistema aéreo nacional, la seguridad o la llegada tardía del avión). Los vuelos están en un único archivo plano (flights.csv), útil para registrarlos pero no para analizarlos. La necesidad es **saber dónde, cuándo y por qué se producen los retrasos y las cancelaciones** (por aerolínea, aeropuerto, ruta, horario y causa), para que aerolíneas, aeropuertos y pasajeros tomen mejores decisiones. No es un tema de ventas ni de inventario: es el análisis del desempeño operativo de un sistema de transporte.")
+titulo1("1. Tema del proyecto")
+
+titulo2("1.1 Tema seleccionado")
+parrafo("El proyecto analiza la puntualidad de los vuelos comerciales nacionales de Estados Unidos durante el año 2015. Se estudian los retrasos, las cancelaciones y los desvíos de los vuelos según la aerolínea, el aeropuerto, la ruta, la fecha y la hora de salida.")
+
+titulo2("1.2 Conjunto de datos")
+parrafo("Los datos se obtuvieron de Kaggle, del conjunto de datos \"2015 Flight Delays and Cancellations\", publicado por el Departamento de Transporte de los Estados Unidos con información de la Oficina de Estadísticas de Transporte (BTS).")
+parrafo("Enlace: https://www.kaggle.com/datasets/usdot/flight-delays")
+parrafo("El conjunto de datos está formado por tres archivos CSV, que se describen en la Tabla 1.")
+tabla("Archivos del conjunto de datos", ["Archivo", "Contenido", "Registros"], [
+    ["flights.csv", "Un registro por vuelo con la fecha, la aerolínea, el número de vuelo, los aeropuertos de origen y destino, los horarios, los retrasos, los tiempos de vuelo, la distancia, la cancelación, el desvío y las causas del retraso.", "Más de 5,8 millones"],
+    ["airlines.csv", "Código y nombre de cada aerolínea.", "14"],
+    ["airports.csv", "Código, nombre, ciudad, estado, país y coordenadas de cada aeropuerto.", "322"],
+], [3.2, 9.8, 3.0])
+parrafo("La información es suficiente para construir un Data Warehouse. Cada vuelo es un hecho que se puede medir (minutos de retraso, tiempos y distancia) y tiene datos descriptivos que sirven como dimensiones, como la fecha, la aerolínea y los aeropuertos. Estas dimensiones tienen jerarquías naturales: las fechas se agrupan en meses, trimestres y años, y los aeropuertos en ciudades, estados y regiones.")
+
+titulo2("1.3 Contexto de los datos y necesidad de análisis")
+parrafo("En Estados Unidos, la BTS considera que un vuelo está retrasado cuando llega 15 minutos o más después de la hora programada. En ese caso la aerolínea informa la causa del retraso, que puede ser la propia aerolínea, el clima, el sistema nacional de aviación, la seguridad o la llegada tardía del avión desde un vuelo anterior. Los vuelos cancelados también tienen registrado el motivo de la cancelación.")
+parrafo("Actualmente estos datos están en un archivo plano, que sirve para registrar los vuelos pero no para analizarlos. Por ejemplo, para saber qué aerolínea tuvo más retrasos en diciembre o cuál fue la causa más frecuente, habría que procesar millones de filas en cada consulta. La necesidad de análisis es conocer dónde, cuándo y por qué se producen los retrasos y las cancelaciones, para que las aerolíneas y los aeropuertos puedan mejorar su puntualidad y los pasajeros puedan elegir mejor sus vuelos.")
+
+titulo2("1.4 Justificación del tema")
+parrafo("El tema no pertenece a los casos excluidos en la consigna, como ventas, inventarios, hoteles o restaurantes. Se trata del análisis del desempeño de un sistema de transporte, con un volumen grande de datos, varias causas de retraso y datos que necesitan limpieza antes de cargarse: horas guardadas como números (por ejemplo, 1530 para las 15:30), valores vacíos en los vuelos cancelados y códigos de aeropuerto numéricos en el mes de octubre. Por estas razones se justifica el diseño de un Data Warehouse y de un proceso ETL.")
 
 # ---------------------------------------------------------------------------
 # 2. Objetivos
 # ---------------------------------------------------------------------------
-titulo("2. Objetivos del Data Warehouse")
-p("**Objetivo general:** implementar un Data Warehouse con un DataMart de Puntualidad de Vuelos que integre los vuelos de 2015 para analizar la puntualidad, los retrasos y las cancelaciones por aerolínea, aeropuerto, ruta y período, mediante indicadores, consultas, cubos OLAP, reportes y cuadros de mando.")
-p("**Objetivos específicos** (cada uno se mide con el indicador indicado y se responde con una consulta SQL):")
-tabla(["Cód.", "Objetivo específico", "Indicador (cómo se mide)"], [
-    ["OE1", "Medir la puntualidad de cada aerolínea por mes.", "% puntuales = vuelos con menos de 15 min de retraso / vuelos completados"],
-    ["OE2", "Cuantificar las cancelaciones y los desvíos por aerolínea y motivo.", "% cancelados y % desviados sobre los vuelos programados"],
-    ["OE3", "Identificar qué causas generan más minutos de retraso.", "% de los minutos de retraso de cada causa"],
-    ["OE4", "Determinar los aeropuertos y rutas con mayor retraso.", "Promedio de minutos de retraso de llegada por ruta"],
-    ["OE5", "Analizar los retrasos según la franja horaria y el día de la semana.", "Promedio de minutos de retraso de salida por franja y día"],
-    ["OE6", "Evaluar la eficiencia en tierra de cada aeropuerto.", "Promedio de minutos de rodaje antes del despegue"],
-], [1.4, 8.2, 6.4])
-p("Estos objetivos son la base del diseño: definen el hecho (vuelo) y su granularidad (un vuelo), las dimensiones (fecha, hora, aerolínea, aeropuerto y motivo de cancelación) y las métricas (minutos de retraso, tiempos, distancia e indicadores). En la segunda presentación cada objetivo tendrá su reporte (puntualidad por aerolínea, cancelaciones por motivo, causas de retraso, rutas y aeropuertos con más retraso, y retrasos por horario) y los indicadores se reunirán en un cuadro de mando de puntualidad con filtros por aerolínea, aeropuerto y mes.")
+titulo1("2. Objetivos del Data Warehouse")
+
+titulo2("2.1 Objetivo general")
+parrafo("Diseñar e implementar un Data Warehouse que integre los datos de los vuelos nacionales de Estados Unidos del año 2015, para analizar la puntualidad, los retrasos y las cancelaciones por aerolínea, aeropuerto, ruta y período mediante indicadores, reportes y cuadros de mando.")
+
+titulo2("2.2 Objetivos específicos")
+parrafo("Los objetivos específicos se presentan en la Tabla 2. Cada uno tiene un indicador que permite medirlo con los datos del DataMart.")
+tabla("Objetivos específicos e indicadores", ["N.º", "Objetivo específico", "Indicador"], [
+    ["OE1", "Medir la puntualidad de cada aerolínea por mes.", "Porcentaje de vuelos que llegan con menos de 15 minutos de retraso."],
+    ["OE2", "Cuantificar las cancelaciones y los desvíos por aerolínea y por motivo.", "Porcentaje de vuelos cancelados y desviados."],
+    ["OE3", "Identificar las causas que generan más minutos de retraso.", "Porcentaje de minutos de retraso de cada causa."],
+    ["OE4", "Determinar las rutas y los aeropuertos con mayor retraso.", "Promedio de minutos de retraso en la llegada."],
+    ["OE5", "Analizar los retrasos según la hora de salida y el día de la semana.", "Promedio de minutos de retraso en la salida."],
+    ["OE6", "Evaluar el tiempo que los aviones pasan en tierra en cada aeropuerto.", "Promedio de minutos de rodaje antes del despegue."],
+], [1.4, 7.6, 7.0])
+
+titulo2("2.3 Relación de los objetivos con el diseño")
+parrafo("A partir de estos objetivos se definió el diseño del DataMart. Todos se responden analizando vuelos, por lo que el hecho principal es el vuelo y la granularidad es un vuelo. Las dimensiones necesarias son la fecha, la hora de salida, la aerolínea, el aeropuerto y el motivo de cancelación. Las métricas son los minutos de retraso, los tiempos de vuelo, la distancia y los indicadores de vuelo cancelado, desviado, retrasado o puntual.")
+parrafo("En la segunda presentación cada objetivo tendrá un reporte, y los indicadores principales se reunirán en un cuadro de mando de puntualidad con filtros por aerolínea, aeropuerto y mes.")
 
 # ---------------------------------------------------------------------------
 # 3. Modelado conceptual
 # ---------------------------------------------------------------------------
-titulo("3. Modelado Conceptual del DataMart")
-p("**Tres DataMarts posibles:**")
-vinetas([
-    "**DM1 Puntualidad de Vuelos:** cada vuelo con sus retrasos, cancelación y desvío.",
-    "**DM2 Causas de Retraso:** minutos de retraso de cada vuelo repartidos por causa.",
-    "**DM3 Operaciones Aeroportuarias:** resumen diario de salidas, llegadas y cancelaciones de cada aeropuerto.",
-])
-p("**DataMart seleccionado: DM1**, porque tiene el detalle de cada vuelo (los otros dos se pueden obtener de él), responde los seis objetivos y sus dimensiones se reutilizan en DM2 y DM3.")
-p("**Modelo conceptual:** proceso de negocio «operación de un vuelo programado»; hecho **Vuelo**; dimensiones con sus jerarquías: Fecha (año → trimestre → mes → fecha, y día de la semana), Hora de salida (franja horaria → hora), Aerolínea, Aeropuerto (región → estado → ciudad → aeropuerto), que se usa dos veces, como origen y como destino, y Motivo de cancelación (Figura 1).")
-p("**Granularidad:** cada registro de la tabla de hechos es **un vuelo programado de una aerolínea en una fecha** (una fila de flights.csv), identificado por la fecha, la aerolínea, el número de vuelo, el aeropuerto de origen y la hora programada de salida; ≈ 5,8 millones de registros.")
-figura(diagramas.exportar_png("conceptual"), Cm(15.5), "**Figura 1.** Modelo conceptual del DataMart Puntualidad de Vuelos: hecho, dimensiones y jerarquías.")
+titulo1("3. Modelado conceptual del DataMart")
+
+titulo2("3.1 DataMarts propuestos")
+parrafo("Con los datos disponibles se identificaron tres posibles DataMarts, que se muestran en la Tabla 3.")
+tabla("DataMarts propuestos", ["DataMart", "Qué analiza", "Cada registro representa"], [
+    ["Puntualidad de Vuelos", "La operación de cada vuelo: retrasos, cancelaciones y desvíos.", "Un vuelo."],
+    ["Causas de Retraso", "Cómo se reparten los minutos de retraso entre sus causas.", "Un vuelo retrasado y una de sus causas."],
+    ["Operaciones Aeroportuarias", "El movimiento diario de cada aeropuerto: salidas, llegadas y cancelaciones.", "Un aeropuerto en un día."],
+], [4.4, 7.0, 4.6])
+
+titulo2("3.2 DataMart seleccionado")
+parrafo("Se eligió el DataMart de Puntualidad de Vuelos porque es el que aporta más valor: guarda el detalle de cada vuelo, permite responder los seis objetivos y los otros dos DataMarts se pueden obtener a partir de él, resumiendo sus datos por causa o por aeropuerto y día.")
+
+titulo2("3.3 Modelo conceptual")
+parrafo("El proceso de negocio es la operación de un vuelo programado. El hecho es el vuelo y se describe con seis dimensiones: la fecha, la hora de salida, la aerolínea, el aeropuerto de origen, el aeropuerto de destino y el motivo de cancelación. Los aeropuertos de origen y de destino son la misma dimensión usada en dos roles. La Figura 1 muestra el modelo con las jerarquías de cada dimensión.")
+
+titulo2("3.4 Granularidad")
+parrafo("Cada registro de la tabla de hechos representa un vuelo programado de una aerolínea en una fecha, es decir, una fila del archivo flights.csv. Un vuelo se identifica por su fecha, la aerolínea, el número de vuelo, el aeropuerto de origen y la hora programada de salida. Con esta granularidad, la tabla de hechos tendrá más de 5,8 millones de registros.")
+figura(diagramas.exportar_png("conceptual"), Cm(14.5), "Modelo conceptual del DataMart Puntualidad de Vuelos.")
 
 # ---------------------------------------------------------------------------
 # 4. Modelado lógico
 # ---------------------------------------------------------------------------
-titulo("4. Modelado Lógico del DataMart")
-p("Esquema en estrella (Figura 2). Cada dimensión se relaciona 1:N con la tabla de hechos mediante su clave sustituta (PK) y la clave foránea (FK) correspondiente:")
-tabla(["Tabla", "Atributos"], [
-    ["fact_vuelo", "PK sk_vuelo; FK sk_fecha, sk_hora_salida, sk_aerolinea, sk_aeropuerto_origen, sk_aeropuerto_destino, sk_motivo_cancelacion; dimensiones degeneradas: numero_vuelo, matricula_avion, salida_programada; métricas en minutos: retraso_salida_min, retraso_llegada_min, taxi_salida_min, taxi_llegada_min, tiempo_programado_min, tiempo_real_min, tiempo_aire_min, retraso_aerolinea_min, retraso_clima_min, retraso_sistema_aereo_min, retraso_seguridad_min, retraso_avion_tardio_min; distancia_millas; indicadores 0/1: es_cancelado, es_desviado, es_retrasado, es_puntual; fecha_carga (auditoría)"],
-    ["dim_fecha", "PK sk_fecha (AAAAMMDD); fecha, dia, dia_semana, nombre_dia, es_fin_de_semana, mes, nombre_mes, trimestre, anio"],
-    ["dim_hora", "PK sk_hora (0 a 23); hora_texto, franja_horaria"],
-    ["dim_aerolinea", "PK sk_aerolinea; codigo_iata, nombre_aerolinea"],
-    ["dim_aeropuerto", "PK sk_aeropuerto; codigo_iata, nombre_aeropuerto, ciudad, estado, region, pais, latitud, longitud"],
-    ["dim_motivo_cancelacion", "PK sk_motivo_cancelacion; codigo_motivo (N, A, B, C, D), descripcion"],
-], [5.3, 10.7])
-p("**Estructura del dataset y su uso en el DataMart:** cada columna de los archivos CSV se carga en una dimensión, una métrica o un indicador de la tabla de hechos:")
-tabla(["Columna del dataset", "Significado", "En el DataMart (uso)"], [
-    ["YEAR\nMONTH\nDAY\nDAY_OF_WEEK", "Fecha del vuelo y día de la semana", "dim_fecha\n(dimensión)"],
-    ["AIRLINE", "Código de la aerolínea", "dim_aerolinea\n(dimensión)"],
-    ["ORIGIN_AIRPORT\nDESTINATION_AIRPORT", "Aeropuertos de origen y destino", "dim_aeropuerto, en dos roles\n(dimensión)"],
-    ["SCHEDULED_DEPARTURE", "Hora programada de salida (hhmm)", "salida_programada (degenerada)\ndim_hora (dimensión)"],
-    ["CANCELLATION_REASON", "Motivo: A, B, C o D", "dim_motivo_cancelacion\n(dimensión)"],
+titulo1("4. Modelado lógico del DataMart")
+
+titulo2("4.1 Tablas de hechos y dimensiones")
+parrafo("El modelo lógico es un esquema en estrella formado por una tabla de hechos y cinco tablas de dimensiones. La Tabla 4 detalla los atributos de cada tabla y la Figura 2, al final de este punto, muestra el diagrama del modelo.")
+tabla("Tablas del modelo lógico", ["Tabla", "Atributos"], [
+    ["fact_vuelo (hechos)", "sk_vuelo (PK); sk_fecha, sk_hora_salida, sk_aerolinea, sk_aeropuerto_origen, sk_aeropuerto_destino, sk_motivo_cancelacion (FK); numero_vuelo, matricula_avion, salida_programada; retraso_salida_min, retraso_llegada_min, taxi_salida_min, taxi_llegada_min, tiempo_programado_min, tiempo_real_min, tiempo_aire_min, distancia_millas; retraso_aerolinea_min, retraso_clima_min, retraso_sistema_aereo_min, retraso_seguridad_min, retraso_avion_tardio_min; es_cancelado, es_desviado, es_retrasado, es_puntual; fecha_carga"],
+    ["dim_fecha", "sk_fecha (PK), fecha, dia, dia_semana, nombre_dia, es_fin_de_semana, mes, nombre_mes, trimestre, anio"],
+    ["dim_hora", "sk_hora (PK), hora_texto, franja_horaria"],
+    ["dim_aerolinea", "sk_aerolinea (PK), codigo_iata, nombre_aerolinea"],
+    ["dim_aeropuerto", "sk_aeropuerto (PK), codigo_iata, nombre_aeropuerto, ciudad, estado, region, pais, latitud, longitud"],
+    ["dim_motivo_\u200bcancelacion", "sk_motivo_cancelacion (PK), codigo_motivo, descripcion"],
+], [4.3, 11.7])
+
+titulo2("4.2 Claves y relaciones")
+parrafo("Cada dimensión tiene una clave sustituta (sk), que es un número generado por la base de datos y funciona como clave primaria. La tabla de hechos guarda una clave foránea hacia cada dimensión, y todas las relaciones son de uno a muchos: por ejemplo, una aerolínea tiene muchos vuelos, pero cada vuelo pertenece a una sola aerolínea.")
+parrafo("Los códigos que vienen en los archivos, como el código IATA de aerolíneas y aeropuertos, se guardan como claves naturales y sirven para encontrar la clave sustituta durante la carga. La dimensión aeropuerto se relaciona dos veces con la tabla de hechos, una como origen y otra como destino. El número de vuelo, la matrícula del avión y la hora programada se guardan en la tabla de hechos como dimensiones degeneradas, porque no necesitan una tabla propia.")
+
+titulo2("4.3 Origen de los datos")
+parrafo("La Tabla 5 muestra cómo se usa cada columna de los archivos CSV en el DataMart.")
+tabla("Columnas del conjunto de datos y su uso en el DataMart", ["Columna del dataset", "Significado", "En el DataMart"], [
+    ["YEAR\nMONTH\nDAY\nDAY_OF_WEEK", "Fecha del vuelo y día de la semana", "dim_fecha (dimensión)"],
+    ["AIRLINE", "Código de la aerolínea", "dim_aerolinea (dimensión)"],
+    ["ORIGIN_AIRPORT\nDESTINATION_AIRPORT", "Aeropuertos de origen y destino", "dim_aeropuerto (dimensión)"],
+    ["SCHEDULED_DEPARTURE", "Hora programada de salida", "salida_programada (dimensión degenerada)\ndim_hora (dimensión)"],
+    ["CANCELLATION_REASON", "Motivo de la cancelación", "dim_motivo_cancelacion (dimensión)"],
     ["FLIGHT_NUMBER\nTAIL_NUMBER", "Número de vuelo y matrícula del avión", "numero_vuelo\nmatricula_avion\n(dimensiones degeneradas)"],
-    ["DEPARTURE_DELAY", "Minutos de retraso en la salida", "retraso_salida_min\n(métrica aditiva)"],
-    ["ARRIVAL_DELAY", "Minutos de retraso en la llegada", "retraso_llegada_min (métrica aditiva)\nes_retrasado, es_puntual (indicadores)"],
-    ["TAXI_OUT\nTAXI_IN", "Minutos de rodaje antes del despegue y después del aterrizaje", "taxi_salida_min\ntaxi_llegada_min\n(métricas aditivas)"],
-    ["SCHEDULED_TIME\nELAPSED_TIME\nAIR_TIME", "Duración programada, real y en el aire", "tiempo_programado_min\ntiempo_real_min\ntiempo_aire_min\n(métricas aditivas)"],
-    ["DISTANCE", "Distancia en millas", "distancia_millas\n(métrica aditiva)"],
-    ["AIRLINE_DELAY\nWEATHER_DELAY\nAIR_SYSTEM_DELAY\nSECURITY_DELAY\nLATE_AIRCRAFT_DELAY", "Minutos de retraso por causa: aerolínea, clima, sistema aéreo, seguridad y avión tardío", "retraso_aerolinea_min\nretraso_clima_min\nretraso_sistema_aereo_min\nretraso_seguridad_min\nretraso_avion_tardio_min\n(métricas aditivas)"],
-    ["CANCELLED\nDIVERTED", "1 si el vuelo fue cancelado o desviado", "es_cancelado\nes_desviado\n(indicadores 0/1)"],
-    ["DEPARTURE_TIME\nWHEELS_OFF\nWHEELS_ON\nSCHEDULED_ARRIVAL\nARRIVAL_TIME", "Horas reales y programadas de cada etapa del vuelo", "No se cargan: lo necesario ya está en los retrasos y los tiempos"],
-    ["airlines.csv: IATA_CODE, AIRLINE", "Código y nombre de la aerolínea", "dim_aerolinea\n(dimensión)"],
-    ["airports.csv: IATA_CODE, AIRPORT, CITY, STATE, COUNTRY, LATITUDE, LONGITUDE", "Datos de cada aeropuerto", "dim_aeropuerto; la región se deriva del estado\n(dimensión)"],
-], [6.2, 3.8, 6.0])
-vinetas([
-    "**Claves:** las claves sustitutas (sk_*) son enteros generados por el DBMS; los códigos IATA del dataset son claves naturales únicas que el ETL usa para buscar la clave sustituta. dim_aeropuerto se relaciona dos veces con los hechos (origen y destino).",
-    "**Métricas aditivas:** minutos de retraso (total y por causa), tiempos, distancia e indicadores 0/1 (su suma cuenta vuelos cancelados, retrasados o puntuales).",
-    "**Métricas semiaditivas:** no hay en este hecho, porque cada vuelo es un evento independiente y no un saldo acumulado.",
-    "**Métricas no aditivas:** porcentajes de puntualidad y de cancelación, y promedios; se recalculan desde sus componentes.",
-])
-p("**Verificación:** OE1 usa es_puntual por aerolínea y mes; OE2, es_cancelado y es_desviado por aerolínea y motivo; OE3, los minutos por causa; OE4, retraso_llegada_min por aeropuertos de origen y destino; OE5, retraso_salida_min por franja horaria y día; OE6, taxi_salida_min por aeropuerto de origen. Todos los objetivos se pueden responder con el modelo.")
+    ["DEPARTURE_DELAY", "Minutos de retraso en la salida", "retraso_salida_min (métrica)"],
+    ["ARRIVAL_DELAY", "Minutos de retraso en la llegada", "retraso_llegada_min (métrica)\nes_retrasado y es_puntual (indicadores)"],
+    ["TAXI_OUT\nTAXI_IN", "Minutos de rodaje antes del despegue y después del aterrizaje", "taxi_salida_min\ntaxi_llegada_min\n(métricas)"],
+    ["SCHEDULED_TIME\nELAPSED_TIME\nAIR_TIME", "Duración programada, real y en el aire", "tiempo_programado_min\ntiempo_real_min\ntiempo_aire_min\n(métricas)"],
+    ["DISTANCE", "Distancia en millas", "distancia_millas (métrica)"],
+    ["AIRLINE_DELAY\nWEATHER_DELAY\nAIR_SYSTEM_DELAY\nSECURITY_DELAY\nLATE_AIRCRAFT_DELAY", "Minutos de retraso por cada causa", "retraso_aerolinea_min\nretraso_clima_min\nretraso_sistema_aereo_min\nretraso_seguridad_min\nretraso_avion_tardio_min\n(métricas)"],
+    ["CANCELLED\nDIVERTED", "Indican si el vuelo fue cancelado o desviado", "es_cancelado\nes_desviado\n(indicadores)"],
+    ["DEPARTURE_TIME\nWHEELS_OFF\nWHEELS_ON\nSCHEDULED_ARRIVAL\nARRIVAL_TIME", "Horas reales y programadas de cada etapa del vuelo", "No se cargan, porque lo necesario ya está en los retrasos y los tiempos"],
+    ["airlines.csv (todas)", "Datos de cada aerolínea", "dim_aerolinea (dimensión)"],
+    ["airports.csv (todas)", "Datos de cada aeropuerto", "dim_aeropuerto (dimensión); la región se obtiene del estado"],
+], [5.9, 4.3, 5.8])
+
+titulo2("4.4 Métricas y su clasificación")
+parrafo("En la Tabla 6 se clasifican las métricas de la tabla de hechos según si se pueden sumar o no.")
+tabla("Clasificación de las métricas", ["Métrica", "Tipo", "Motivo"], [
+    ["Minutos de retraso en la salida y en la llegada", "Aditiva", "Se suman por aerolínea, aeropuerto o fecha para obtener el total de minutos de retraso."],
+    ["Minutos de retraso por causa", "Aditiva", "La suma por causa muestra cuál genera más retraso."],
+    ["Tiempos de rodaje, tiempo programado, tiempo real y tiempo en el aire", "Aditiva", "Se pueden sumar o promediar por cualquier dimensión."],
+    ["Distancia", "Aditiva", "La suma da el total de millas voladas."],
+    ["Indicadores de vuelo cancelado, desviado, retrasado y puntual (0 o 1)", "Aditiva", "La suma da la cantidad de vuelos de cada tipo."],
+    ["Porcentajes de puntualidad y de cancelación, y promedios", "No aditiva", "No se pueden sumar; se calculan a partir de los totales."],
+], [6.2, 2.6, 7.2])
+parrafo("No hay métricas semiaditivas, porque cada vuelo es un evento independiente y ninguna medida representa un saldo acumulado en el tiempo.")
+
+titulo2("4.5 Verificación del modelo con los objetivos")
+parrafo("La Tabla 7 muestra qué métricas y dimensiones se usan para responder cada objetivo específico.")
+tabla("Verificación del modelo lógico", ["Objetivo", "Métricas", "Dimensiones"], [
+    ["OE1", "es_puntual, es_retrasado", "Aerolínea y fecha (mes)"],
+    ["OE2", "es_cancelado, es_desviado", "Aerolínea y motivo de cancelación"],
+    ["OE3", "Minutos de retraso por causa", "Fecha y aerolínea"],
+    ["OE4", "retraso_llegada_min", "Aeropuerto de origen y de destino"],
+    ["OE5", "retraso_salida_min, es_retrasado", "Hora (franja horaria) y fecha (día de la semana)"],
+    ["OE6", "taxi_salida_min", "Aeropuerto de origen"],
+], [2.4, 6.6, 7.0])
+parrafo("Como se observa, todos los objetivos se pueden responder con las métricas y dimensiones del modelo.")
 
 nueva_seccion(horizontal=True)
-figura(diagramas.exportar_png("logico"), Cm(26.5), "**Figura 2.** Modelo lógico del DataMart Puntualidad de Vuelos (esquema en estrella).")
-p("PK = clave primaria (sustituta); FK = clave foránea, con la tabla a la que apunta; NK = clave natural única; DD = dimensión degenerada; ‖──< = relación 1:N. dim_aeropuerto se relaciona dos veces con fact_vuelo (origen y destino).", centrado=True)
+figura(diagramas.exportar_png("logico"), Cm(26.5), "Modelo lógico del DataMart Puntualidad de Vuelos.",
+       "PK: clave primaria. FK: clave foránea. NK: clave natural. DD: dimensión degenerada. Todas las relaciones son de uno a muchos.")
 nueva_seccion(horizontal=False)
 
 # ---------------------------------------------------------------------------
 # 5. Modelado físico
 # ---------------------------------------------------------------------------
-titulo("5. Modelado Físico del DataMart")
-p("Se implementó en **PostgreSQL 16** (base y esquema dw_vuelos) con scripts SQL que crean las cinco dimensiones y la tabla de hechos, los índices y los datos fijos (fechas 2014–2016, las 24 horas y los motivos de cancelación).")
-vinetas([
-    "**Tipos de datos:** claves INTEGER/BIGINT IDENTITY; minutos y distancia SMALLINT (los retrasos negativos indican adelanto); indicadores SMALLINT; fecha DATE y hora programada TIME; códigos VARCHAR(3).",
-    "**Restricciones e integridad referencial:** PK en todas las tablas, UNIQUE en los códigos IATA y en la clave natural del vuelo, seis FK obligatorias (dos hacia dim_aeropuerto) y reglas CHECK (distancia > 0, un vuelo cancelado debe tener motivo, es_retrasado = 1 solo si llegó con 15 minutos o más de retraso). Se probó que el DBMS rechaza aerolíneas inexistentes, vuelos cancelados sin motivo, vuelos duplicados, distancias negativas y el borrado de aeropuertos con vuelos.",
-    "**Índices y orientación al análisis y al ETL:** índices en cada FK, en (aerolínea, fecha), en la ruta (origen, destino) y un índice parcial de vuelos cancelados; la clave natural única permite recargar sin duplicar y el miembro «Desconocido» (-1) evita perder vuelos con códigos no encontrados.",
-])
-p("La Figura 3 muestra el modelo físico implementado, obtenido del catálogo de PostgreSQL: cada tabla con sus columnas, tipos de datos, claves y columnas obligatorias. Los scripts SQL de creación se entregan junto con el proyecto.")
+titulo1("5. Modelado físico del DataMart")
 
-# Figura del modelo físico (página horizontal)
+titulo2("5.1 Implementación en PostgreSQL")
+parrafo("El modelo físico se implementó en PostgreSQL 16, en una base de datos llamada dw_vuelos. Se crearon las cinco tablas de dimensiones y la tabla de hechos con sus tipos de datos, claves, restricciones e índices. También se cargaron los datos fijos: el calendario de 2014 a 2016, las 24 horas del día y los motivos de cancelación. La Figura 3 muestra el modelo físico tal como quedó en la base de datos.")
+
+titulo2("5.2 Tipos de datos y restricciones")
+parrafo("La Tabla 8 resume los tipos de datos elegidos para las columnas de las tablas.")
+tabla("Tipos de datos utilizados", ["Datos", "Tipo de dato", "Motivo"], [
+    ["Claves sustitutas", "INTEGER y BIGINT con IDENTITY", "Se generan automáticamente."],
+    ["Minutos, distancia e indicadores", "SMALLINT", "Son números pequeños y los indicadores se pueden sumar."],
+    ["Fecha y hora programada", "DATE y TIME", "Permiten trabajar con fechas y horas."],
+    ["Códigos y nombres", "VARCHAR y CHAR", "Texto de longitud limitada."],
+], [5.0, 5.0, 6.0])
+parrafo("Las restricciones definidas son: clave primaria en todas las tablas, UNIQUE en los códigos IATA y en la combinación que identifica a cada vuelo, NOT NULL en las columnas obligatorias y reglas CHECK, por ejemplo, que la distancia sea mayor que cero o que un vuelo cancelado tenga un motivo de cancelación.")
+
+titulo2("5.3 Relaciones e integridad referencial")
+parrafo("Las relaciones entre la tabla de hechos y las dimensiones se crearon como claves foráneas: seis en total, dos de ellas hacia la dimensión aeropuerto. Para comprobar la integridad referencial se hicieron pruebas, y la base de datos rechazó correctamente un vuelo con una aerolínea que no existe, un vuelo cancelado sin motivo, un vuelo repetido, una distancia negativa y la eliminación de un aeropuerto que tiene vuelos registrados.")
+
+titulo2("5.4 Preparación para las consultas y para el ETL")
+parrafo("Para que las consultas sean rápidas se crearon índices sobre las claves foráneas, sobre la combinación de aerolínea y fecha, sobre las rutas (origen y destino) y un índice parcial para los vuelos cancelados. Para facilitar la carga con Apache Hop, las dimensiones de aerolínea y aeropuerto tienen un registro \"Desconocido\" con clave -\u20601, que se usa cuando un código no se encuentra, y la clave del vuelo evita que se carguen vuelos repetidos si el proceso se ejecuta más de una vez.")
+
 nueva_seccion(horizontal=True)
-figura(diagramas.exportar_png("fisico"), Cm(26.5), "**Figura 3.** Modelo físico del DataMart Puntualidad de Vuelos en PostgreSQL 16 (esquema dw_vuelos).")
-p("PK = clave primaria; FK = clave foránea; UK = forma parte de una restricción UNIQUE; NN = NOT NULL; IDENTITY = valor generado por el DBMS; ‖──< = relación 1:N. dim_aeropuerto se relaciona dos veces con fact_vuelo (origen y destino).", centrado=True)
+figura(diagramas.exportar_png("fisico"), Cm(26.5), "Modelo físico del DataMart Puntualidad de Vuelos en PostgreSQL 16.",
+       "PK: clave primaria. FK: clave foránea. UK: restricción UNIQUE. NN: NOT NULL. IDENTITY: valor generado por la base de datos.")
 
 doc.save(SALIDA_DOCX)
 subprocess.run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", str(SALIDA_DOCX.parent), str(SALIDA_DOCX)],
