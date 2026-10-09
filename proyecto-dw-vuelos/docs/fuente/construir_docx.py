@@ -214,9 +214,6 @@ titulo2("1.3 Contexto de los datos y necesidad de análisis")
 parrafo("En Estados Unidos, la BTS considera que un vuelo está retrasado cuando llega 15 minutos o más después de la hora programada. En ese caso la aerolínea informa la causa del retraso, que puede ser la propia aerolínea, el clima, el sistema nacional de aviación, la seguridad o la llegada tardía del avión desde un vuelo anterior. Los vuelos cancelados también tienen registrado el motivo de la cancelación.")
 parrafo("Actualmente estos datos están en un archivo plano, que sirve para registrar los vuelos pero no para analizarlos. Por ejemplo, para saber qué aerolínea tuvo más retrasos en diciembre o cuál fue la causa más frecuente, habría que procesar millones de filas en cada consulta. La necesidad de análisis es conocer dónde, cuándo y por qué se producen los retrasos y las cancelaciones, para que las aerolíneas y los aeropuertos puedan mejorar su puntualidad y los pasajeros puedan elegir mejor sus vuelos.")
 
-titulo2("1.4 Justificación del tema")
-parrafo("El tema no pertenece a los casos excluidos en la consigna, como ventas, inventarios, hoteles o restaurantes. Se trata del análisis del desempeño de un sistema de transporte, con un volumen grande de datos, varias causas de retraso y datos que necesitan limpieza antes de cargarse: horas guardadas como números (por ejemplo, 1530 para las 15:30), valores vacíos en los vuelos cancelados y códigos de aeropuerto numéricos en el mes de octubre. Por estas razones se justifica el diseño de un Data Warehouse y de un proceso ETL.")
-
 # ---------------------------------------------------------------------------
 # 2. Objetivos
 # ---------------------------------------------------------------------------
